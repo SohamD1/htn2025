@@ -18,7 +18,7 @@ const Login: React.FC = () => {
 
     try {
       await login(teamName, email);
-      navigate('/dashboard');
+      navigate('/product-selection');
     } catch (err: any) {
       setError(err.message || 'Login failed. Please try again.');
     } finally {

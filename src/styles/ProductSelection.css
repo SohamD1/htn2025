@@ -1,0 +1,133 @@
+.product-selection-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #003087 0%, #0051a5 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.product-selection-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  color: white;
+}
+
+.product-selection-header .rbc-logo {
+  width: 80px;
+  height: 80px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.product-selection-header .logo-text {
+  color: #003087;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.product-selection-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 300;
+}
+
+.product-selection-header .tagline {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.product-cards {
+  display: flex;
+  gap: 2rem;
+  max-width: 900px;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.product-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  flex: 1;
+  min-width: 300px;
+  max-width: 400px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.product-card h2 {
+  color: #003087;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.product-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+}
+
+.product-description {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  min-height: 80px;
+}
+
+.product-button {
+  background: #003087;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.product-button:hover {
+  background: #002060;
+  transform: scale(1.05);
+}
+
+.product-button.coming-soon {
+  background: #999;
+  cursor: not-allowed;
+}
+
+.product-button.coming-soon:hover {
+  background: #888;
+  transform: none;
+}
+
+@media (max-width: 768px) {
+  .product-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .product-card {
+    width: 100%;
+    max-width: 350px;
+  }
+
+  .product-selection-header h1 {
+    font-size: 2rem;
+  }
+}

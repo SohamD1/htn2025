@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
+import ProductSelection from './pages/ProductSelection';
 import Dashboard from './pages/Dashboard';
 import PortfolioManager from './pages/PortfolioManager';
 import CashManagement from './pages/CashManagement';
@@ -16,6 +17,14 @@ function App() {
         <div className="App">
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route
+              path="/product-selection"
+              element={
+                <PrivateRoute>
+                  <ProductSelection />
+                </PrivateRoute>
+              }
+            />
             <Route
               path="/dashboard"
               element={
