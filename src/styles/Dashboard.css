@@ -98,6 +98,36 @@
   margin-bottom: 1.5rem;
 }
 
+.portfolio-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.refresh-portfolios-btn {
+  background: white;
+  color: var(--rbc-blue);
+  border: 2px solid var(--rbc-blue);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.refresh-portfolios-btn:hover:not(:disabled) {
+  background: var(--rbc-blue);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.refresh-portfolios-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .section-header h2 {
   color: var(--rbc-blue);
 }
@@ -212,4 +242,183 @@
   border-radius: 10px;
   font-weight: 600;
   font-size: 1.1rem;
+}
+
+/* Quick Create Client Styles */
+.create-client-options {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.create-client-btn.primary {
+  background: var(--rbc-blue);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-client-btn.primary:hover {
+  background: var(--rbc-blue-dark);
+  transform: translateY(-2px);
+}
+
+.create-client-btn.secondary {
+  background: white;
+  color: var(--rbc-blue);
+  border: 2px solid var(--rbc-blue);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-client-btn.secondary:hover {
+  background: var(--rbc-blue);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.quick-create-form {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.quick-create-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.quick-create-form input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.quick-create-form input:focus {
+  outline: none;
+  border-color: var(--rbc-blue);
+}
+
+.quick-create-form input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.quick-create-form small {
+  color: var(--medium-gray);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.create-btn {
+  background: var(--rbc-blue);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-btn:hover:not(:disabled) {
+  background: var(--rbc-blue-dark);
+  transform: translateY(-2px);
+}
+
+.create-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.cancel-btn {
+  background: white;
+  color: var(--medium-gray);
+  border: 2px solid #e0e0e0;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  border-color: var(--medium-gray);
+  color: var(--dark-gray);
+}
+
+.cancel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.client-debug {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border-left: 4px solid var(--rbc-blue);
+}
+
+.refresh-btn {
+  background: var(--rbc-blue);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.refresh-btn:hover {
+  background: var(--rbc-blue-dark);
+}
+
+/* Token refresh button */
+.refresh-token-btn {
+  background: var(--rbc-gold);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.refresh-token-btn:hover {
+  background: #d4a017;
+  transform: translateY(-1px);
+}
+
+.portfolio-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }

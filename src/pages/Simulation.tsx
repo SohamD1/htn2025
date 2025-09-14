@@ -19,14 +19,28 @@ const Simulation: React.FC = () => {
       return;
     }
 
+    console.log('Starting simulation for client:', currentClient);
     setLoading(true);
     setError('');
     setSimulationResults([]);
 
     try {
+      // First check if client has portfolios
+      console.log('Checking client portfolios before simulation...');
+      const portfolios = await rbcAPI.getClientPortfolios(currentClient.id);
+      console.log('Client portfolios found:', portfolios);
+      
+      if (portfolios.length === 0) {
+        setError('No portfolios found for this client. Please create portfolios first.');
+        return;
+      }
+
+      console.log(`Running simulation for ${portfolios.length} portfolios...`);
       const response = await rbcAPI.simulateClient(currentClient.id, parseInt(months));
+      console.log('Simulation response:', response);
       setSimulationResults(response.results);
     } catch (err: any) {
+      console.error('Simulation error:', err);
       setError(err.message || 'Simulation failed');
     } finally {
       setLoading(false);

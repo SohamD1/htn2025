@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Portfolio } from '../services/rbc-service';
 import rbcAPI from '../services/rbc-service';
+import authService from '../services/auth-service';
 import Navigation from '../components/Navigation';
 import PortfolioCard from '../components/PortfolioCard';
 import ClientSelector from '../components/ClientSelector';
@@ -10,15 +11,19 @@ import PortfolioChart from '../components/PortfolioChart';
 import '../styles/Dashboard.css';
 
 const Dashboard: React.FC = () => {
-  const { currentClient } = useAuth();
+  const { currentClient, clients, refreshClients } = useAuth();
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalValue, setTotalValue] = useState(0);
   const [totalInvested, setTotalInvested] = useState(0);
+  const [showQuickCreate, setShowQuickCreate] = useState(false);
+  const [quickAccountName, setQuickAccountName] = useState('');
+  const [creatingAccount, setCreatingAccount] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (currentClient) {
+      console.log('Current client changed, reloading portfolios:', currentClient);
       loadPortfolios();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -29,7 +34,9 @@ const Dashboard: React.FC = () => {
 
     setLoading(true);
     try {
+      console.log('Loading portfolios for client:', currentClient.id);
       const portfolioList = await rbcAPI.getClientPortfolios(currentClient.id);
+      console.log('Loaded portfolios:', portfolioList);
       setPortfolios(portfolioList);
 
       const totalVal = portfolioList.reduce((sum, p) => sum + p.current_value, 0);
@@ -37,6 +44,7 @@ const Dashboard: React.FC = () => {
 
       setTotalValue(totalVal);
       setTotalInvested(totalInv);
+      console.log('Portfolio totals - Value:', totalVal, 'Invested:', totalInv);
     } catch (error) {
       console.error('Failed to load portfolios:', error);
     } finally {
@@ -57,6 +65,42 @@ const Dashboard: React.FC = () => {
     }));
   };
 
+  const handleQuickCreateAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickAccountName.trim()) return;
+
+    setCreatingAccount(true);
+    try {
+      await authService.createNewAccount(quickAccountName.trim());
+      await refreshClients();
+      setShowQuickCreate(false);
+      setQuickAccountName('');
+    } catch (error: any) {
+      console.error('Failed to create account:', error);
+      alert(error.message || 'Failed to create account');
+    } finally {
+      setCreatingAccount(false);
+    }
+  };
+
+  const handleRefreshToken = async () => {
+    try {
+      console.log('Refreshing RBC API token...');
+      const success = await rbcAPI.refreshToken();
+      if (success) {
+        alert('RBC API token refreshed successfully!');
+        // Refresh data after token refresh
+        await refreshClients();
+        await loadPortfolios();
+      } else {
+        alert('Failed to refresh RBC API token. Please try logging out and back in.');
+      }
+    } catch (error: any) {
+      console.error('Token refresh error:', error);
+      alert(`Failed to refresh token: ${error.message}`);
+    }
+  };
+
   if (!currentClient) {
     return (
       <div className="dashboard">
@@ -64,13 +108,78 @@ const Dashboard: React.FC = () => {
         <div className="dashboard-content">
           <div className="no-client-message">
             <h2>Welcome to InvestEase</h2>
-            <p>Please create a client to get started</p>
-            <button
-              className="create-client-btn"
-              onClick={() => navigate('/cash')}
-            >
-              Create Your First Client
-            </button>
+            <div className="client-debug">
+              <p><strong>Debug Info:</strong></p>
+              <p>Total accounts found: {clients.length}</p>
+              <p>Current account: None</p>
+              {clients.length > 0 && (
+                <div>
+                  <p>Available accounts:</p>
+                  <ul>
+                    {clients.map(client => (
+                      <li key={client.id}>
+                        {client.name} ({client.email}) - ${client.cash}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <button onClick={refreshClients} className="refresh-btn">
+                Refresh Accounts
+              </button>
+            </div>
+            <p>Please create an account to get started or check the debug info above</p>
+            
+            {!showQuickCreate ? (
+              <div className="create-client-options">
+                <button
+                  className="create-client-btn primary"
+                  onClick={() => setShowQuickCreate(true)}
+                >
+                  Quick Create Account
+                </button>
+                <button
+                  className="create-client-btn secondary"
+                  onClick={() => navigate('/cash')}
+                >
+                  Advanced Account Creation
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleQuickCreateAccount} className="quick-create-form">
+                <div className="form-group">
+                  <input
+                    type="text"
+                    value={quickAccountName}
+                    onChange={(e) => setQuickAccountName(e.target.value)}
+                    placeholder="Enter account name"
+                    required
+                    disabled={creatingAccount}
+                  />
+                  <small>Email will be set to your account email automatically</small>
+                </div>
+                <div className="form-actions">
+                  <button
+                    type="submit"
+                    disabled={creatingAccount || !quickAccountName.trim()}
+                    className="create-btn"
+                  >
+                    {creatingAccount ? 'Creating...' : 'Create Account'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowQuickCreate(false);
+                      setQuickAccountName('');
+                    }}
+                    disabled={creatingAccount}
+                    className="cancel-btn"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       </div>
@@ -123,12 +232,28 @@ const Dashboard: React.FC = () => {
         <div className="portfolios-section">
           <div className="section-header">
             <h2>Your Portfolios</h2>
-            <button
-              className="add-portfolio-btn"
-              onClick={() => navigate('/portfolios')}
-            >
-              + Add Portfolio
-            </button>
+            <div className="portfolio-actions">
+              <button
+                className="refresh-token-btn"
+                onClick={handleRefreshToken}
+                title="Refresh RBC API Token"
+              >
+                🔑 Refresh Token
+              </button>
+              <button
+                className="refresh-portfolios-btn"
+                onClick={loadPortfolios}
+                disabled={loading}
+              >
+                🔄 Refresh
+              </button>
+              <button
+                className="add-portfolio-btn"
+                onClick={() => navigate('/portfolios')}
+              >
+                + Add Portfolio
+              </button>
+            </div>
           </div>
 
           {loading ? (

@@ -7,6 +7,9 @@ const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
 const User = require('./models/User');
+const RBCClient = require('./models/RBCClient');
+const RBCPortfolio = require('./models/RBCPortfolio');
+const RBCSimulation = require('./models/RBCSimulation');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -493,6 +496,300 @@ app.put('/api/auth/money', authenticateToken, async (req, res) => {
     res.status(500).json({ 
       success: false, 
       message: 'Failed to update money' 
+    });
+  }
+});
+
+// ===== RBC DATA ENDPOINTS =====
+
+// Save RBC Client
+app.post('/api/rbc/clients', authenticateToken, async (req, res) => {
+  try {
+    const { rbc_client_id, name, email, team_name, cash, rbc_created_at, rbc_updated_at } = req.body;
+    
+    if (!rbc_client_id || !name || !email || !team_name) {
+      return res.status(400).json({
+        success: false,
+        message: 'RBC client ID, name, email, and team name are required'
+      });
+    }
+
+    if (isMongoConnected) {
+      // Check if RBC client already exists
+      const existingClient = await RBCClient.findOne({ rbc_client_id });
+      if (existingClient) {
+        // Update existing client
+        existingClient.name = name;
+        existingClient.email = email;
+        existingClient.team_name = team_name;
+        existingClient.cash = cash || 0;
+        existingClient.rbc_updated_at = rbc_updated_at;
+        await existingClient.save();
+        
+        return res.json({
+          success: true,
+          message: 'RBC client updated successfully',
+          client: existingClient
+        });
+      }
+
+      // Create new RBC client
+      const rbcClient = new RBCClient({
+        user_id: req.user.user_id,
+        rbc_client_id,
+        name,
+        email,
+        team_name,
+        cash: cash || 0,
+        rbc_created_at,
+        rbc_updated_at
+      });
+
+      await rbcClient.save();
+      
+      res.status(201).json({
+        success: true,
+        message: 'RBC client saved successfully',
+        client: rbcClient
+      });
+    } else {
+      // In-memory fallback - just return success for now
+      res.status(201).json({
+        success: true,
+        message: 'RBC client saved (in-memory mode)',
+        client: { rbc_client_id, name, email, team_name, cash }
+      });
+    }
+  } catch (error) {
+    console.error('Save RBC client error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to save RBC client'
+    });
+  }
+});
+
+// Get RBC Clients for user
+app.get('/api/rbc/clients', authenticateToken, async (req, res) => {
+  try {
+    if (isMongoConnected) {
+      const clients = await RBCClient.find({ user_id: req.user.user_id });
+      res.json({
+        success: true,
+        clients: clients
+      });
+    } else {
+      // In-memory fallback
+      res.json({
+        success: true,
+        clients: []
+      });
+    }
+  } catch (error) {
+    console.error('Get RBC clients error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get RBC clients'
+    });
+  }
+});
+
+// Save RBC Portfolio
+app.post('/api/rbc/portfolios', authenticateToken, async (req, res) => {
+  try {
+    const {
+      rbc_client_id,
+      rbc_portfolio_id,
+      team_name,
+      type,
+      invested_amount,
+      current_value,
+      total_months_simulated,
+      transactions,
+      growth_trend,
+      rbc_created_at
+    } = req.body;
+
+    if (!rbc_client_id || !rbc_portfolio_id || !type) {
+      return res.status(400).json({
+        success: false,
+        message: 'RBC client ID, portfolio ID, and type are required'
+      });
+    }
+
+    if (isMongoConnected) {
+      // Check if portfolio already exists
+      const existingPortfolio = await RBCPortfolio.findOne({ rbc_portfolio_id });
+      if (existingPortfolio) {
+        // Update existing portfolio
+        existingPortfolio.invested_amount = invested_amount || 0;
+        existingPortfolio.current_value = current_value || 0;
+        existingPortfolio.total_months_simulated = total_months_simulated || 0;
+        existingPortfolio.transactions = transactions || [];
+        existingPortfolio.growth_trend = growth_trend || [];
+        await existingPortfolio.save();
+
+        return res.json({
+          success: true,
+          message: 'RBC portfolio updated successfully',
+          portfolio: existingPortfolio
+        });
+      }
+
+      // Create new portfolio
+      const rbcPortfolio = new RBCPortfolio({
+        user_id: req.user.user_id,
+        rbc_client_id,
+        rbc_portfolio_id,
+        team_name,
+        type,
+        invested_amount: invested_amount || 0,
+        current_value: current_value || 0,
+        total_months_simulated: total_months_simulated || 0,
+        transactions: transactions || [],
+        growth_trend: growth_trend || [],
+        rbc_created_at
+      });
+
+      await rbcPortfolio.save();
+
+      res.status(201).json({
+        success: true,
+        message: 'RBC portfolio saved successfully',
+        portfolio: rbcPortfolio
+      });
+    } else {
+      // In-memory fallback
+      res.status(201).json({
+        success: true,
+        message: 'RBC portfolio saved (in-memory mode)',
+        portfolio: { rbc_portfolio_id, type, invested_amount, current_value }
+      });
+    }
+  } catch (error) {
+    console.error('Save RBC portfolio error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to save RBC portfolio'
+    });
+  }
+});
+
+// Get RBC Portfolios for user
+app.get('/api/rbc/portfolios', authenticateToken, async (req, res) => {
+  try {
+    const { rbc_client_id } = req.query;
+
+    if (isMongoConnected) {
+      let query = { user_id: req.user.user_id };
+      if (rbc_client_id) {
+        query.rbc_client_id = rbc_client_id;
+      }
+
+      const portfolios = await RBCPortfolio.find(query);
+      res.json({
+        success: true,
+        portfolios: portfolios
+      });
+    } else {
+      // In-memory fallback
+      res.json({
+        success: true,
+        portfolios: []
+      });
+    }
+  } catch (error) {
+    console.error('Get RBC portfolios error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get RBC portfolios'
+    });
+  }
+});
+
+// Save RBC Simulation
+app.post('/api/rbc/simulations', authenticateToken, async (req, res) => {
+  try {
+    const {
+      rbc_client_id,
+      simulation_type,
+      months_requested,
+      message,
+      results
+    } = req.body;
+
+    if (!rbc_client_id || !months_requested || !results) {
+      return res.status(400).json({
+        success: false,
+        message: 'RBC client ID, months requested, and results are required'
+      });
+    }
+
+    if (isMongoConnected) {
+      const rbcSimulation = new RBCSimulation({
+        user_id: req.user.user_id,
+        rbc_client_id,
+        simulation_type: simulation_type || 'api',
+        months_requested,
+        message: message || 'Simulation completed',
+        results: results || []
+      });
+
+      await rbcSimulation.save();
+
+      res.status(201).json({
+        success: true,
+        message: 'RBC simulation saved successfully',
+        simulation: rbcSimulation
+      });
+    } else {
+      // In-memory fallback
+      res.status(201).json({
+        success: true,
+        message: 'RBC simulation saved (in-memory mode)',
+        simulation: { rbc_client_id, months_requested, results: results.length }
+      });
+    }
+  } catch (error) {
+    console.error('Save RBC simulation error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to save RBC simulation'
+    });
+  }
+});
+
+// Get RBC Simulations for user
+app.get('/api/rbc/simulations', authenticateToken, async (req, res) => {
+  try {
+    const { rbc_client_id, limit = 10 } = req.query;
+
+    if (isMongoConnected) {
+      let query = { user_id: req.user.user_id };
+      if (rbc_client_id) {
+        query.rbc_client_id = rbc_client_id;
+      }
+
+      const simulations = await RBCSimulation.find(query)
+        .sort({ created_at: -1 })
+        .limit(parseInt(limit));
+
+      res.json({
+        success: true,
+        simulations: simulations
+      });
+    } else {
+      // In-memory fallback
+      res.json({
+        success: true,
+        simulations: []
+      });
+    }
+  } catch (error) {
+    console.error('Get RBC simulations error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get RBC simulations'
     });
   }
 });

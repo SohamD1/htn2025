@@ -35,7 +35,9 @@ const PortfolioManager: React.FC = () => {
 
     setLoading(true);
     try {
+      console.log('Loading portfolios for client:', currentClient.id);
       const data = await rbcAPI.getClientPortfolios(currentClient.id);
+      console.log('Loaded portfolios in PortfolioManager:', data);
       setPortfolios(data);
     } catch (error) {
       console.error('Failed to load portfolios:', error);
@@ -50,16 +52,22 @@ const PortfolioManager: React.FC = () => {
     setLoading(true);
     setMessage('');
     try {
-      console.log(currentClient)
-      await rbcAPI.createPortfolio(currentClient.id, {
+      console.log('Creating portfolio for client:', currentClient);
+      const result = await rbcAPI.createPortfolio(currentClient.id, {
         type: type as PortfolioCreate['type'],
         initialAmount: amount
       });
+      console.log('Portfolio created:', result);
+      
       setMessage('Portfolio created successfully!');
       setShowCreateModal(false);
-      loadPortfolios();
-      refreshClients();
+      
+      // Refresh client data first to get updated cash amount
+      await refreshClients();
+      // Then reload portfolios to show the new portfolio
+      await loadPortfolios();
     } catch (error: any) {
+      console.error('Portfolio creation error:', error);
       setMessage(error.message || 'Failed to create portfolio');
     } finally {
       setLoading(false);

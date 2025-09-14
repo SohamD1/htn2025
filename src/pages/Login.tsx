@@ -70,7 +70,7 @@ const Login: React.FC = () => {
           }
           
           // Set authentication state
-          setAuthenticatedUser(response.user);
+          await setAuthenticatedUser(response.user);
           
           setSuccess('Login successful!');
           setTimeout(() => navigate('/product-selection'), 1000);
@@ -125,7 +125,7 @@ const Login: React.FC = () => {
         localStorage.setItem('user_data', JSON.stringify(response.user));
         
         // Set authentication state
-        setAuthenticatedUser(response.user);
+        await setAuthenticatedUser(response.user);
         
         setSuccess('Account created successfully!');
         setTimeout(() => navigate('/product-selection'), 1000);

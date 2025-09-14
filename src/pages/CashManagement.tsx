@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import rbcAPI from '../services/rbc-service';
+import authService from '../services/auth-service';
 import Navigation from '../components/Navigation';
 import '../styles/CashManagement.css';
 
 const CashManagement: React.FC = () => {
   const { currentClient, clients, refreshClients, selectClient } = useAuth();
   const [depositAmount, setDepositAmount] = useState('');
-  const [newClientName, setNewClientName] = useState('');
-  const [newClientEmail, setNewClientEmail] = useState('');
+  const [newAccountName, setNewAccountName] = useState('');
   const [initialCash, setInitialCash] = useState('');
-  const [showCreateClient, setShowCreateClient] = useState(false);
+  const [showCreateAccount, setShowCreateAccount] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -34,28 +34,26 @@ const CashManagement: React.FC = () => {
     }
   };
 
-  const handleCreateClient = async (e: React.FormEvent) => {
+  const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
 
     try {
-      const newClient = await rbcAPI.createClient({
-        name: newClientName,
-        email: newClientEmail,
-        cash: parseFloat(initialCash) || 0,
-      });
+      const newAccount = await authService.createNewAccount(
+        newAccountName,
+        parseFloat(initialCash) || 10000
+      );
 
-      setMessage('Client created successfully!');
-      setShowCreateClient(false);
-      setNewClientName('');
-      setNewClientEmail('');
+      setMessage('Account created successfully!');
+      setShowCreateAccount(false);
+      setNewAccountName('');
       setInitialCash('');
 
       await refreshClients();
-      selectClient(newClient);
+      selectClient(newAccount);
     } catch (error: any) {
-      setMessage(error.message || 'Failed to create client');
+      setMessage(error.message || 'Failed to create account');
     } finally {
       setLoading(false);
     }
@@ -87,7 +85,7 @@ const CashManagement: React.FC = () => {
           <h1>Cash Management</h1>
           <button
             className="create-client-btn"
-            onClick={() => setShowCreateClient(true)}
+            onClick={() => setShowCreateAccount(true)}
           >
             + Create New Client
           </button>
@@ -187,42 +185,34 @@ const CashManagement: React.FC = () => {
           </div>
         ) : (
           <div className="no-client-message">
-            <h2>No Clients Found</h2>
-            <p>Create your first client to start managing finances</p>
+            <h2>No Accounts Found</h2>
+            <p>Create your first account to start managing finances</p>
             <button
-              className="create-first-client-btn"
-              onClick={() => setShowCreateClient(true)}
+              className="create-first-account-btn"
+              onClick={() => setShowCreateAccount(true)}
             >
-              Create Your First Client
+              Create Your First Account
             </button>
           </div>
         )}
 
-        {showCreateClient && (
+        {showCreateAccount && (
           <div className="modal-overlay">
             <div className="modal-content">
-              <h2>Create New Client</h2>
-              <form onSubmit={handleCreateClient}>
+              <h2>Create New Account</h2>
+              <form onSubmit={handleCreateAccount}>
                 <div className="form-group">
-                  <label>Client Name</label>
+                  <label>Account Name</label>
                   <input
                     type="text"
-                    value={newClientName}
-                    onChange={(e) => setNewClientName(e.target.value)}
-                    placeholder="Enter client name"
+                    value={newAccountName}
+                    onChange={(e) => setNewAccountName(e.target.value)}
+                    placeholder="Enter account name"
                     required
                   />
-                </div>
-
-                <div className="form-group">
-                  <label>Email Address</label>
-                  <input
-                    type="email"
-                    value={newClientEmail}
-                    onChange={(e) => setNewClientEmail(e.target.value)}
-                    placeholder="Enter email address"
-                    required
-                  />
+                  <small className="form-hint">
+                    Email will be automatically set to your account email
+                  </small>
                 </div>
 
                 <div className="form-group">
@@ -231,7 +221,7 @@ const CashManagement: React.FC = () => {
                     type="number"
                     value={initialCash}
                     onChange={(e) => setInitialCash(e.target.value)}
-                    placeholder="Enter initial deposit amount"
+                    placeholder="Enter initial deposit amount (default: $10,000)"
                     min="0"
                     step="0.01"
                   />
@@ -241,9 +231,8 @@ const CashManagement: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      setShowCreateClient(false);
-                      setNewClientName('');
-                      setNewClientEmail('');
+                      setShowCreateAccount(false);
+                      setNewAccountName('');
                       setInitialCash('');
                     }}
                     className="cancel-btn"
@@ -255,7 +244,7 @@ const CashManagement: React.FC = () => {
                     className="submit-btn"
                     disabled={loading}
                   >
-                    {loading ? 'Creating...' : 'Create Client'}
+                    {loading ? 'Creating...' : 'Create Account'}
                   </button>
                 </div>
               </form>

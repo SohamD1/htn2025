@@ -203,6 +203,30 @@ https://2dcq63co40.execute-api.us-east-1.amazonaws.com/dev
 - `POST /clients/{id}/portfolios` - Create portfolio
 - `POST /client/{id}/simulate` - Run simulations
 
+## Data Persistence
+
+All RBC data is automatically saved to MongoDB for persistent storage:
+
+### Backend RBC Endpoints:
+- `POST /api/rbc/clients` - Save RBC client data
+- `GET /api/rbc/clients` - Load user's RBC clients
+- `POST /api/rbc/portfolios` - Save portfolio data
+- `GET /api/rbc/portfolios` - Load user's portfolios
+- `POST /api/rbc/simulations` - Save simulation results
+- `GET /api/rbc/simulations` - Load simulation history
+
+### Automatic Sync Features:
+- **Login**: Loads cached RBC data from MongoDB
+- **Logout**: Clears all cached data
+- **Real-time Sync**: All RBC operations automatically sync to backend
+- **Token Management**: Automatic RBC API token refresh when needed
+- **Offline Cache**: localStorage fallback for offline access
+
+### Manual Controls:
+- **🔑 Refresh Token** button on Dashboard for manual token refresh
+- **🔄 Refresh** button for reloading portfolio data
+- Automatic fallback simulations when RBC API is unavailable
+
 ## Contributing
 
 1. Fork the repository

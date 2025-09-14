@@ -59,8 +59,8 @@ export interface TransactionData {
 class AuthService {
   private static instance: AuthService;
   private readonly BACKEND_URL = 'http://localhost:3001/api';
-  private readonly CURRENT_USER_KEY = 'rbc_current_user';
-  private readonly AUTH_TOKEN_KEY = 'rbc_auth_token';
+  private readonly CURRENT_USER_KEY = 'user_data';
+  private readonly AUTH_TOKEN_KEY = 'auth_token';
 
   private constructor() {}
 
@@ -224,8 +224,11 @@ class AuthService {
   public getCurrentUser(): any {
     try {
       const currentUser = localStorage.getItem(this.CURRENT_USER_KEY);
-      return currentUser ? JSON.parse(currentUser) : null;
+      const userData = currentUser ? JSON.parse(currentUser) : null;
+      console.log('Current user data from localStorage:', userData);
+      return userData;
     } catch (error) {
+      console.error('Error getting current user:', error);
       return null;
     }
   }
@@ -289,6 +292,75 @@ class AuthService {
       });
     } catch (error) {
       console.error('Failed to update RBC client ID:', error);
+      throw error;
+    }
+  }
+
+  // Create new RBC account (simplified - only needs name, gets email from current user)
+  public async createNewAccount(accountName: string, initialCash: number = 10000): Promise<any> {
+    try {
+      // Get current user data to retrieve email
+      const currentUser = this.getCurrentUser();
+      if (!currentUser || !currentUser.email) {
+        throw new Error('No authenticated user found. Please login first.');
+      }
+
+      // First ensure we have a valid RBC token by registering a team if needed
+      const currentToken = rbcAPI.getToken();
+      if (!currentToken) {
+        console.log('No RBC token found, registering team first...');
+        try {
+          // Generate a unique team name to avoid conflicts
+          const timestamp = Date.now();
+          const teamResponse = await rbcAPI.registerTeam({
+            team_name: `${currentUser.user_name}'s Investment Team ${timestamp}`,
+            contact_email: currentUser.email
+          });
+          console.log('Team registered successfully for new account creation:', teamResponse);
+          
+          // Store the token
+          const newToken = rbcAPI.getToken();
+          if (newToken) {
+            localStorage.setItem('portfolio_api_token', newToken);
+            console.log('RBC token stored successfully');
+          } else {
+            console.error('No token received after team registration');
+            throw new Error('No authentication token received from RBC API');
+          }
+        } catch (teamError: any) {
+          console.error('Failed to register team - Full error:', teamError);
+          console.error('Error message:', teamError.message);
+          console.error('Error response:', teamError.response);
+          
+          // If team already exists, try to use existing token
+          if (teamError.message && teamError.message.includes('already exists')) {
+            console.log('Team already exists, checking for existing token...');
+            const existingToken = localStorage.getItem('portfolio_api_token');
+            if (existingToken) {
+              rbcAPI.setToken(existingToken);
+              console.log('Using existing RBC token');
+            } else {
+              throw new Error('Team already exists but no valid token found. Please contact support.');
+            }
+          } else {
+            throw new Error(`Failed to authenticate with RBC API: ${teamError.message || 'Unknown error'}`);
+          }
+        }
+      } else {
+        console.log('Using existing RBC token for account creation');
+      }
+
+      // Create RBC account using the current user's email
+      const accountResponse = await rbcAPI.createClient({
+        name: accountName,
+        email: currentUser.email,
+        cash: initialCash
+      });
+
+      console.log('New RBC account created successfully:', accountResponse.id);
+      return accountResponse;
+    } catch (error) {
+      console.error('Failed to create new RBC account:', error);
       throw error;
     }
   }
