@@ -39,7 +39,8 @@ Use the unified startup script to run all services:
 ```
 
 This will start:
-- **RBC InvestEase** (Main App): http://localhost:3001
+- **RBC InvestEase** (Main App): http://localhost:3000
+- **Node.js Backend** (Auth/Database): http://localhost:3001
 - **RBC InvestIQ** (Advanced): http://localhost:5173  
 - **Trading API Backend**: http://localhost:5001
 
@@ -48,16 +49,20 @@ This will start:
 Or start services individually:
 
 ```bash
-# Terminal 1 - Main React App
+# Terminal 1 - Node.js Backend
+cd backend
+npm install && npm start
+
+# Terminal 2 - Main React App
 npm start
 
-# Terminal 2 - Trading API Backend
+# Terminal 3 - Trading API Backend
 cd backend/trading-api
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 python app.py
 
-# Terminal 3 - InvestIQ Frontend
+# Terminal 4 - InvestIQ Frontend
 cd port-maker
 npm run dev
 ```
