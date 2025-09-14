@@ -113,52 +113,9 @@ class AuthService {
         localStorage.setItem(this.AUTH_TOKEN_KEY, response.token);
         localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(response.user));
 
-        // Register team first to get JWT token, then create RBC client
-        try {
-          console.log('Creating InvestEase client for user:', userData.user_name);
-          
-          // First register team to get authentication token
-          const teamResponse = await rbcAPI.registerTeam({
-            team_name: `${userData.user_name}'s Investment Team`,
-            contact_email: userData.email
-          });
-          console.log('Team registered successfully:', teamResponse.teamId);
-
-          // Then create client with the authenticated token
-          const clientResponse = await rbcAPI.createClient({
-            name: userData.user_name,
-            email: userData.email,
-            cash: userData.money || 10000
-          });
-          console.log('InvestEase client created successfully:', clientResponse.id);
-          
-          // Store the RBC client ID in the user data and backend
-          if (response.user) {
-            response.user.rbc_client_id = clientResponse.id;
-            
-            // Also store the RBC token for portfolio operations
-            const rbcToken = rbcAPI.getToken();
-            if (rbcToken) {
-              localStorage.setItem('portfolio_api_token', rbcToken);
-            }
-            
-            // Update the backend with the RBC client ID
-            try {
-              await this.updateRBCClientId(clientResponse.id);
-              console.log('RBC client ID saved to database');
-            } catch (updateError) {
-              console.warn('Failed to save RBC client ID to database:', updateError);
-            }
-          }
-          
-        } catch (rbcError: any) {
-          console.error('Failed to create InvestEase client:', rbcError);
-          console.log('Error details:', rbcError.message);
-          
-          // Still allow registration to succeed, but log the issue
-          console.log('User registered in database but InvestEase client creation failed');
-          console.log('User can still use the app, but portfolio features may be limited');
-        }
+        // NOTE: RBC account creation moved to first login only
+        // User will be prompted to create investment account on their first login
+        console.log('User registered successfully. Investment account will be created on first login.');
       }
 
       return response;
@@ -185,6 +142,12 @@ class AuthService {
         // Store token and user data
         localStorage.setItem(this.AUTH_TOKEN_KEY, response.token);
         localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(response.user));
+
+        // Check if this is the user's first login (no RBC client ID)
+        // If so, they'll need to create an investment account
+        if (!response.user.rbc_client_id) {
+          console.log('First-time login detected - user will need to create investment account');
+        }
       }
 
       return response;
@@ -279,6 +242,25 @@ class AuthService {
       return {
         success: false,
         message: error.message || 'Failed to update money. Please try again.'
+      };
+    }
+  }
+
+  // Synchronize user money with portfolio investments
+  public async syncUserMoneyWithInvestments(totalInvested: number, initialBalance: number = 40000): Promise<AuthResponse> {
+    try {
+      // Calculate what the user's money should be: initial balance minus what's invested
+      const expectedBalance = Math.max(0, initialBalance - totalInvested);
+
+      console.log(`💰 Syncing money: Initial ${initialBalance}, Invested ${totalInvested}, Expected ${expectedBalance}`);
+
+      return await this.updateUserMoney('', expectedBalance);
+
+    } catch (error: any) {
+      console.error('Sync money with investments error:', error);
+      return {
+        success: false,
+        message: error.message || 'Failed to sync money with investments.'
       };
     }
   }

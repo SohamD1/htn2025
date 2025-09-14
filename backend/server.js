@@ -232,10 +232,12 @@ app.post('/api/auth/login', async (req, res) => {
         user: {
           user_id: user.user_id,
           client_id: user.client_id,
+          rbc_client_id: user.rbc_client_id,
           user_name: user.user_name,
           email: user.email,
           money: user.money,
-          txs: user.txs
+          txs: user.txs,
+          created_at: user.created_at
         },
         token
       });
@@ -276,10 +278,12 @@ app.post('/api/auth/login', async (req, res) => {
         user: {
           user_id: user.user_id,
           client_id: user.client_id,
+          rbc_client_id: user.rbc_client_id,
           user_name: user.user_name,
           email: user.email,
           money: user.money,
-          txs: user.txs
+          txs: user.txs,
+          created_at: user.created_at
         },
         token
       });
@@ -429,23 +433,27 @@ app.put('/api/auth/rbc-client', authenticateToken, async (req, res) => {
     const { rbc_client_id } = req.body;
 
     if (!rbc_client_id) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'RBC client ID is required' 
+      return res.status(400).json({
+        success: false,
+        message: 'RBC client ID is required'
       });
     }
 
     if (isMongoConnected) {
       const user = await User.findOneAndUpdate(
         { user_id: req.user.user_id },
-        { rbc_client_id, updated_at: Date.now() },
+        {
+          rbc_client_id,
+          account_setup_completed: true,  // Mark setup as completed when RBC client ID is set
+          updated_at: Date.now()
+        },
         { new: true }
       );
 
       if (!user) {
-        return res.status(404).json({ 
-          success: false, 
-          message: 'User not found' 
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
         });
       }
 
@@ -459,21 +467,23 @@ app.put('/api/auth/rbc-client', authenticateToken, async (req, res) => {
           user_name: user.user_name,
           email: user.email,
           money: user.money,
-          txs: user.txs
+          txs: user.txs,
+          account_setup_completed: user.account_setup_completed
         }
       });
     } else {
       // In-memory storage
       const userIndex = inMemoryUsers.findIndex(u => u.user_id === req.user.user_id);
-      
+
       if (userIndex === -1) {
-        return res.status(404).json({ 
-          success: false, 
-          message: 'User not found' 
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
         });
       }
 
       inMemoryUsers[userIndex].rbc_client_id = rbc_client_id;
+      inMemoryUsers[userIndex].account_setup_completed = true;
       inMemoryUsers[userIndex].updated_at = new Date();
 
       res.json({
@@ -486,16 +496,17 @@ app.put('/api/auth/rbc-client', authenticateToken, async (req, res) => {
           user_name: inMemoryUsers[userIndex].user_name,
           email: inMemoryUsers[userIndex].email,
           money: inMemoryUsers[userIndex].money,
-          txs: inMemoryUsers[userIndex].txs
+          txs: inMemoryUsers[userIndex].txs,
+          account_setup_completed: inMemoryUsers[userIndex].account_setup_completed
         }
       });
     }
 
   } catch (error) {
     console.error('Update RBC client ID error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to update RBC client ID' 
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update RBC client ID'
     });
   }
 });

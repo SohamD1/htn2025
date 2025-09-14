@@ -41,6 +41,10 @@ const UserSchema = new mongoose.Schema({
     unique: true,
     sparse: true      // Allow null values to be non-unique
   },
+  account_setup_completed: {
+    type: Boolean,
+    default: false    // Track if user has completed investment account setup
+  },
   user_id: {
     type: String,
     required: true,

@@ -57,17 +57,9 @@ const Login: React.FC = () => {
           localStorage.setItem('auth_token', response.token);
           localStorage.setItem('user_data', JSON.stringify(response.user));
           
-          // For existing users, we need to re-register the team to get RBC token
-          // This is needed because RBC tokens don't persist between sessions
-          try {
-            await rbcAPI.registerTeam({
-              team_name: `${response.user.user_name}'s Investment Team`,
-              contact_email: response.user.email
-            });
-            console.log('RBC team token refreshed for existing user');
-          } catch (rbcError) {
-            console.warn('Failed to refresh RBC token:', rbcError);
-          }
+          // For existing users with RBC accounts, we'll refresh token later if needed
+          // For first-time users, they'll be prompted to create investment account
+          console.log('Login successful for user:', response.user.user_name);
           
           // Set authentication state
           await setAuthenticatedUser(response.user);

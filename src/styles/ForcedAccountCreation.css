@@ -1,0 +1,259 @@
+.forced-account-creation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 61, 165, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.creation-card {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.creation-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.creation-header h2 {
+  color: #003DA5;
+  margin: 0 0 15px 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.creation-subtitle {
+  color: #666;
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.creation-subtitle strong {
+  color: #003DA5;
+}
+
+.creation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.required {
+  color: #ef4444;
+}
+
+.account-input, .cash-input {
+  padding: 15px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.account-input:focus, .cash-input:focus {
+  outline: none;
+  border-color: #003DA5;
+  box-shadow: 0 0 0 3px rgba(0, 61, 165, 0.1);
+}
+
+.account-input:disabled, .cash-input:disabled {
+  background: #f9fafb;
+  opacity: 0.7;
+}
+
+.cash-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 15px;
+  font-weight: 600;
+  color: #666;
+  z-index: 1;
+}
+
+.cash-input {
+  padding-left: 35px;
+}
+
+.input-hint {
+  color: #666;
+  font-size: 12px;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+.account-preview {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.account-preview h4 {
+  color: #003DA5;
+  margin: 0 0 15px 0;
+  font-size: 16px;
+}
+
+.account-preview ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.account-preview li {
+  padding: 5px 0;
+  color: #374151;
+  font-size: 14px;
+}
+
+.account-preview strong {
+  color: #111827;
+}
+
+.auto-switch-notice {
+  margin-top: 15px;
+  padding: 12px;
+  background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+}
+
+.auto-switch-notice p {
+  margin: 0;
+  color: #1e40af;
+  font-size: 13px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.auto-switch-notice strong {
+  color: #1d4ed8;
+}
+
+.error-message {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.create-account-btn {
+  background: linear-gradient(135deg, #003DA5 0%, #0052d9 100%);
+  color: white;
+  border: none;
+  padding: 18px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.create-account-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #002d7a 0%, #003da5 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 61, 165, 0.3);
+}
+
+.create-account-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.creation-footer {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.security-note {
+  color: #666;
+  font-size: 12px;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .forced-account-creation {
+    padding: 10px;
+  }
+
+  .creation-card {
+    padding: 25px;
+    max-width: none;
+  }
+
+  .creation-header h2 {
+    font-size: 24px;
+  }
+
+  .creation-subtitle {
+    font-size: 14px;
+  }
+}

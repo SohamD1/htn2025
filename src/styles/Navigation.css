@@ -11,6 +11,11 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.nav-brand:hover {
+  transform: translateY(-1px);
 }
 
 .rbc-logo-small {
@@ -52,6 +57,17 @@
   background: var(--rbc-yellow);
   color: var(--rbc-blue);
   font-weight: 600;
+}
+
+.nav-link.home-link {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+}
+
+.nav-link.home-link:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
 }
 
 .logout-btn {

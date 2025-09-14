@@ -14,12 +14,15 @@ const Navigation: React.FC = () => {
 
   return (
     <nav className="navigation">
-      <div className="nav-brand">
+      <div className="nav-brand" onClick={() => navigate('/product-selection')} style={{ cursor: 'pointer' }} title="Back to Product Selection">
         <div className="rbc-logo-small">RBC</div>
         <span className="brand-text">InvestEase</span>
       </div>
 
       <div className="nav-links">
+        <NavLink to="/product-selection" className="nav-link home-link" title="Back to Product Selection">
+          🏠 Home
+        </NavLink>
         <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
           Dashboard
         </NavLink>
