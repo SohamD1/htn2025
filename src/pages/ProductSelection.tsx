@@ -10,8 +10,9 @@ const ProductSelection: React.FC = () => {
   };
 
   const handleInvestIQClick = () => {
-    // TODO: Navigate to InvestIQ page when implemented
-    console.log('InvestIQ clicked - feature coming soon');
+    // Navigate to the advanced trading platform (port-maker)
+    // Open in a new tab since it's a separate application
+    window.open('http://localhost:5173', '_blank');
   };
 
   return (
@@ -40,7 +41,7 @@ const ProductSelection: React.FC = () => {
           <p className="product-description">
             Advanced investment intelligence platform with AI-powered insights and market analysis.
           </p>
-          <button className="product-button coming-soon">Coming Soon</button>
+          <button className="product-button">Launch InvestIQ</button>
         </div>
       </div>
     </div>

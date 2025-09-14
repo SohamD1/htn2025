@@ -1,6 +1,10 @@
-# RBC InvestEase - Student Finance Manager
+# RBC InvestEase & InvestIQ Platform
 
-A comprehensive React application for student portfolio management and investment simulation, integrating with the Hack the North 2025 Portfolio Simulation & Market Sandbox API.
+A comprehensive financial platform featuring two integrated applications:
+- **RBC InvestEase**: Student portfolio management and investment simulation
+- **RBC InvestIQ**: Advanced investment intelligence with real-time charting and market analysis
+
+Integrating with the Hack the North 2025 Portfolio Simulation & Market Sandbox API.
 
 ## Features
 
@@ -8,6 +12,8 @@ A comprehensive React application for student portfolio management and investmen
 ✅ **Portfolio Management** - Create and manage investment portfolios  
 ✅ **Transaction Tracking** - Buy/sell transactions with complete history  
 ✅ **Investment Simulation** - Simulate portfolio performance over time  
+✅ **Advanced Charting** - RBC InvestIQ with TradingView integration and terminal interface  
+✅ **Real-time Market Data** - Live stock data through trading API backend  
 ✅ **Modern UI** - Clean, responsive design with RBC branding  
 ✅ **Real-time Data** - Integration with RBC API for live portfolio data  
 
@@ -17,19 +23,44 @@ A comprehensive React application for student portfolio management and investmen
 
 ```bash
 npm install
+cd port-maker && npm install && cd ..
 ```
 
 ### 2. No Database Setup Required
 
 This application uses **localStorage** for data persistence, so no database setup is needed! All user data and transactions are stored in your browser's local storage.
 
-### 3. Start the Application
+### 3. Start All Services (Recommended)
+
+Use the unified startup script to run all services:
 
 ```bash
-npm start
+./start-all.sh
 ```
 
-The app will open at [http://localhost:3000](http://localhost:3000)
+This will start:
+- **RBC InvestEase** (Main App): http://localhost:3001
+- **RBC InvestIQ** (Advanced): http://localhost:5173  
+- **Trading API Backend**: http://localhost:5001
+
+### 4. Manual Start (Alternative)
+
+Or start services individually:
+
+```bash
+# Terminal 1 - Main React App
+npm start
+
+# Terminal 2 - Trading API Backend
+cd backend/trading-api
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+python app.py
+
+# Terminal 3 - InvestIQ Frontend
+cd port-maker
+npm run dev
+```
 
 ## User Registration & Login
 
