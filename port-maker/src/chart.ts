@@ -43,12 +43,11 @@ export class ChartManager {
             popup_height: '650'
           });
 
-          // For the public widget, we don't have onChartReady callback
-          // We'll just resolve after a short delay to ensure the widget is loaded
+          // Wait longer for the widget to fully initialize
           setTimeout(() => {
-            console.log('Chart widget loaded');
+            console.log('Chart widget loaded and ready for symbol changes');
             resolve();
-          }, 2000);
+          }, 3000); // Increased delay for better reliability
         }).catch(reject);
       } catch (error) {
         reject(error);
@@ -246,16 +245,124 @@ export class ChartManager {
 
   changeSymbol(symbol: string): void {
     if (!this.widget) {
-      console.error('Widget not available');
-      return;
+      console.error('❌ Widget not available for symbol change');
+      throw new Error('Chart widget not initialized');
     }
 
-    this.currentSymbol = symbol;
-    // For the public widget, we need to use the full symbol format
-    this.widget.setSymbol(`NASDAQ:${symbol}`, 'D', () => {
-      console.log(`Symbol changed to: ${symbol}`);
-    });
+    if (!symbol || symbol.trim() === '') {
+      console.error('❌ Invalid symbol provided');
+      throw new Error('Symbol cannot be empty');
+    }
+
+    const normalizedSymbol = symbol.trim().toUpperCase();
+    this.currentSymbol = normalizedSymbol;
+
+    // Use correct exchange prefixes for different stocks
+    const nasdaqStocks = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NVDA', 'AMD', 'INTC', 'NFLX', 'ADBE'];
+    const nyseStocks = ['CRM', 'ORCL', 'NOW', 'SHOP', 'SQ', 'UBER', 'SPOT', 'ZOOM', 'SNOW'];
+
+    let symbolToUse: string;
+    if (nasdaqStocks.includes(normalizedSymbol)) {
+      symbolToUse = `NASDAQ:${normalizedSymbol}`;
+    } else if (nyseStocks.includes(normalizedSymbol)) {
+      symbolToUse = `NYSE:${normalizedSymbol}`;
+    } else {
+      // Default to NASDAQ for tech stocks
+      symbolToUse = `NASDAQ:${normalizedSymbol}`;
+    }
+
+    console.log(`🔄 Attempting to change symbol to: ${symbolToUse}`);
+    console.log('Available widget methods:', Object.keys(this.widget));
+
+    // Try multiple approaches for symbol changing
+    this.tryMultipleSymbolMethods(symbolToUse, normalizedSymbol);
   }
+
+  private tryMultipleSymbolMethods(symbolToUse: string, normalizedSymbol: string): void {
+    let success = false;
+
+    // Method 1: Try setSymbol
+    try {
+      if (typeof this.widget.setSymbol === 'function') {
+        console.log('Trying setSymbol method...');
+        this.widget.setSymbol(symbolToUse, '1D');
+        success = true;
+        console.log(`✅ setSymbol worked for: ${symbolToUse}`);
+      } else {
+        console.log('setSymbol method not available');
+      }
+    } catch (error) {
+      console.error('setSymbol failed:', error);
+    }
+
+    // Method 2: Try chart() API if available
+    if (!success) {
+      try {
+        if (typeof this.widget.chart === 'function') {
+          console.log('Trying chart().setSymbol method...');
+          const chart = this.widget.chart();
+          if (chart && typeof chart.setSymbol === 'function') {
+            chart.setSymbol(symbolToUse);
+            success = true;
+            console.log(`✅ chart().setSymbol worked for: ${symbolToUse}`);
+          }
+        }
+      } catch (error) {
+        console.error('chart().setSymbol failed:', error);
+      }
+    }
+
+    // Method 3: Try recreating the widget (last resort)
+    if (!success) {
+      console.log('Trying widget recreation method...');
+      this.recreateWidgetWithNewSymbol(symbolToUse);
+    }
+  }
+
+  private recreateWidgetWithNewSymbol(symbol: string): void {
+    console.log(`🔄 Recreating widget with symbol: ${symbol}`);
+
+    try {
+      // Store the container
+      const container = document.getElementById('investiq_chart');
+      if (!container) {
+        console.error('Chart container not found');
+        return;
+      }
+
+      // Clear the container
+      container.innerHTML = '';
+
+      // Recreate the widget with new symbol
+      this.widget = new window.TradingView.widget({
+        width: '100%',
+        height: '100%',
+        symbol: symbol,
+        interval: 'D',
+        container_id: 'investiq_chart',
+        timezone: 'Etc/UTC',
+        theme: 'dark',
+        style: '1',
+        locale: 'en',
+        toolbar_bg: '#f1f3f6',
+        enable_publishing: false,
+        allow_symbol_change: true,
+        disabled_features: [],
+        enabled_features: [],
+        studies: [
+          'Volume@tv-basicstudies'
+        ],
+        show_popup_button: true,
+        popup_width: '1000',
+        popup_height: '650'
+      });
+
+      console.log(`✅ Widget recreated with symbol: ${symbol}`);
+    } catch (error) {
+      console.error('Failed to recreate widget:', error);
+    }
+  }
+
 
   private showDrawingInstruction(instruction: string, color: string): void {
     // Create an overlay instruction for the user
