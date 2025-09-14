@@ -7,6 +7,7 @@ import PortfolioManager from './pages/PortfolioManager';
 import CashManagement from './pages/CashManagement';
 import Simulation from './pages/Simulation';
 import Playground from './pages/Playground';
+import FinancialGoals from './pages/FinancialGoals';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import './styles/App.css';
@@ -63,6 +64,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <Playground />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/goals"
+              element={
+                <PrivateRoute>
+                  <FinancialGoals />
                 </PrivateRoute>
               }
             />
