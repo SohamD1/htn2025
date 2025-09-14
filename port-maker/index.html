@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RBC InvestIQ - Advanced Investment Intelligence</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #0d1117;
+            color: white;
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .chart-container {
+            flex: 2;
+            position: relative;
+            border-bottom: 2px solid #21262d;
+        }
+        #tradingview_chart {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .price-line-overlay {
+            position: absolute !important;
+            left: 0;
+            right: 0;
+            height: 2px;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        .terminal-container {
+            flex: 1;
+            min-height: 200px;
+            background-color: #0d1117;
+            border-top: 1px solid #21262d;
+            display: flex;
+            flex-direction: column;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+        }
+        .terminal-header {
+            background: linear-gradient(135deg, #21262d 0%, #161b22 100%);
+            padding: 8px 12px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #7d8590;
+        }
+        .terminal-controls {
+            display: flex;
+            gap: 6px;
+        }
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .terminal-dot.red { background-color: #ff5f56; }
+        .terminal-dot.yellow { background-color: #ffbd2e; }
+        .terminal-dot.green { background-color: #27ca3f; }
+        .terminal-title {
+            margin-left: 8px;
+            font-weight: 500;
+        }
+        .terminal-body {
+            flex: 1;
+            padding: 12px;
+            background-color: #0d1117;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .terminal-output {
+            margin-bottom: 8px;
+            white-space: pre-wrap;
+        }
+        .terminal-output.success {
+            color: #7ee787;
+        }
+        .terminal-output.error {
+            color: #f85149;
+        }
+        .terminal-output.info {
+            color: #79c0ff;
+        }
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+        }
+        .terminal-prompt {
+            color: #7ee787;
+            margin-right: 8px;
+            font-weight: 500;
+        }
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #f0f6fc;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            caret-color: #f0f6fc;
+        }
+        .terminal-input::placeholder {
+            color: #6e7681;
+        }
+        .terminal-cursor {
+            width: 8px;
+            height: 18px;
+            background-color: #f0f6fc;
+            animation: blink 1s infinite;
+            margin-left: 2px;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chart-container">
+            <div id="tradingview_chart"></div>
+        </div>
+        <div class="terminal-container">
+            <div class="terminal-header">
+                <div class="terminal-controls">
+                    <div class="terminal-dot red"></div>
+                    <div class="terminal-dot yellow"></div>
+                    <div class="terminal-dot green"></div>
+                </div>
+                <div class="terminal-title">RBC InvestIQ Terminal — bash — 80×24</div>
+            </div>
+            <div class="terminal-body" id="terminalBody">
+                <div class="terminal-output info">RBC InvestIQ Advanced Investment Intelligence v1.0.0</div>
+                <div class="terminal-output">Type 'help' for available commands</div>
+                <div class="terminal-input-line">
+                    <span class="terminal-prompt">user@investiq:~$</span>
+                    <input 
+                        type="text" 
+                        id="commandInput" 
+                        class="terminal-input" 
+                        placeholder="Enter command..."
+                        autocomplete="off"
+                        spellcheck="false"
+                    />
+                    <button id="executeBtn" style="margin-left: 10px; padding: 2px 8px; background: #21262d; color: white; border: 1px solid #30363d; border-radius: 3px; font-size: 12px;">Execute</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

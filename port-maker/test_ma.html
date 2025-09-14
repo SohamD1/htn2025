@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RBC InvestIQ - Moving Averages Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #1a1a1a;
+            color: white;
+        }
+        #tradingview_chart {
+            height: 500px;
+            width: 100%;
+            background-color: #2a2a2a;
+            position: relative;
+            border: 1px solid #444;
+        }
+        .controls {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #333;
+            border-radius: 5px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #444;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Moving Averages with Yahoo Finance Data</h1>
+    
+    <div class="controls">
+        <h3>Test Controls</h3>
+        <button onclick="testSMA()">Add SMA(20)</button>
+        <button onclick="testEMA()">Add EMA(20)</button>
+        <button onclick="testSMA50()">Add SMA(50)</button>
+        <button onclick="testEMA50()">Add EMA(50)</button>
+        <button onclick="testBB()">Add BB(20)</button>
+        <button onclick="clearAll()">Clear All</button>
+        <button onclick="changeSymbol()">Change to MSFT</button>
+        <div class="status" id="status">Ready to test moving averages...</div>
+    </div>
+
+    <div id="tradingview_chart"></div>
+
+    <script type="module">
+        import { ChartManager } from './src/chart.js';
+
+        let chartManager;
+
+        async function initChart() {
+            try {
+                chartManager = new ChartManager();
+                await chartManager.initializeChart();
+                updateStatus('Chart initialized successfully with Yahoo Finance data');
+            } catch (error) {
+                updateStatus('Error initializing chart: ' + error.message);
+            }
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+            console.log(message);
+        }
+
+        window.testSMA = async function() {
+            if (!chartManager) {
+                updateStatus('Chart not initialized');
+                return;
+            }
+            
+            try {
+                updateStatus('Adding SMA(20)...');
+                await chartManager.addMovingAverage(20, 'sma', '#FF6B6B');
+                updateStatus('SMA(20) added successfully with real Yahoo Finance data');
+            } catch (error) {
+                updateStatus('Error adding SMA: ' + error.message);
+            }
+        };
+
+        window.testEMA = async function() {
+            if (!chartManager) {
+                updateStatus('Chart not initialized');
+                return;
+            }
+            
+            try {
+                updateStatus('Adding EMA(20)...');
+                await chartManager.addMovingAverage(20, 'ema', '#4ECDC4');
+                updateStatus('EMA(20) added successfully with real Yahoo Finance data');
+            } catch (error) {
+                updateStatus('Error adding EMA: ' + error.message);
+            }
+        };
+
+        window.testSMA50 = async function() {
+            if (!chartManager) {
+                updateStatus('Chart not initialized');
+                return;
+            }
+            
+            try {
+                updateStatus('Adding SMA(50)...');
+                await chartManager.addMovingAverage(50, 'sma', '#45B7D1');
+                updateStatus('SMA(50) added successfully with real Yahoo Finance data');
+            } catch (error) {
+                updateStatus('Error adding SMA(50): ' + error.message);
+            }
+        };
+
+        window.testEMA50 = async function() {
+            if (!chartManager) {
+                updateStatus('Chart not initialized');
+                return;
+            }
+            
+            try {
+                updateStatus('Adding EMA(50)...');
+                await chartManager.addMovingAverage(50, 'ema', '#96CEB4');
+                updateStatus('EMA(50) added successfully with real Yahoo Finance data');
+            } catch (error) {
+                updateStatus('Error adding EMA(50): ' + error.message);
+            }
+        };
+
+        window.testBB = async function() {
+            if (!chartManager) {
+                updateStatus('Chart not initialized');
+                return;
+            }
+            
+            try {
+                updateStatus('Adding Bollinger Bands(20)...');
+                await chartManager.addBollingerBands(20);
+                updateStatus('Bollinger Bands(20) added successfully with real Yahoo Finance data');
+            } catch (error) {
+                updateStatus('Error adding Bollinger Bands: ' + error.message);
+            }
+        };
+
+        window.clearAll = function() {
+            if (!chartManager) {
+                updateStatus('Chart not initialized');
+                return;
+            }
+            
+            chartManager.clearAllShapes();
+            updateStatus('All moving averages cleared');
+        };
+
+        window.changeSymbol = function() {
+            if (!chartManager) {
+                updateStatus('Chart not initialized');
+                return;
+            }
+            
+            chartManager.changeSymbol('MSFT');
+            updateStatus('Symbol changed to MSFT');
+        };
+
+        // Initialize chart when page loads
+        initChart();
+    </script>
+</body>
+</html>
