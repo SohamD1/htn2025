@@ -46,44 +46,39 @@ const Login: React.FC = () => {
     setSuccess('');
     setLoading(true);
 
-    try {
-<<<<<<< HEAD
-      const response = await authService.loginUser({
-        email: formData.email,
-        password: formData.password
-      });
+      try {
+        const response = await authService.loginUser({
+          email: formData.email,
+          password: formData.password
+        });
 
-      if (response.success && response.user && response.token) {
-        // Store token in localStorage
-        localStorage.setItem('auth_token', response.token);
-        localStorage.setItem('user_data', JSON.stringify(response.user));
-        
-        // For existing users, we need to re-register the team to get RBC token
-        // This is needed because RBC tokens don't persist between sessions
-        try {
-          await rbcAPI.registerTeam({
-            team_name: `${response.user.user_name}'s Investment Team`,
-            contact_email: response.user.email
-          });
-          console.log('RBC team token refreshed for existing user');
-        } catch (rbcError) {
-          console.warn('Failed to refresh RBC token:', rbcError);
+        if (response.success && response.user && response.token) {
+          // Store token in localStorage
+          localStorage.setItem('auth_token', response.token);
+          localStorage.setItem('user_data', JSON.stringify(response.user));
+          
+          // For existing users, we need to re-register the team to get RBC token
+          // This is needed because RBC tokens don't persist between sessions
+          try {
+            await rbcAPI.registerTeam({
+              team_name: `${response.user.user_name}'s Investment Team`,
+              contact_email: response.user.email
+            });
+            console.log('RBC team token refreshed for existing user');
+          } catch (rbcError) {
+            console.warn('Failed to refresh RBC token:', rbcError);
+          }
+          
+          // Set authentication state
+          setAuthenticatedUser(response.user);
+          
+          setSuccess('Login successful!');
+          setTimeout(() => navigate('/product-selection'), 1000);
+        } else {
+          setError(response.message);
         }
-        
-        // Set authentication state
-        setAuthenticatedUser(response.user);
-        
-        setSuccess('Login successful!');
-        setTimeout(() => navigate('/dashboard'), 1000);
-      } else {
-        setError(response.message);
-      }
-=======
-      await login(teamName, email);
-      navigate('/product-selection');
->>>>>>> refs/remotes/origin/main
-    } catch (err: any) {
-      setError(err.message || 'Login failed. Please try again.');
+      } catch (err: any) {
+        setError(err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -133,7 +128,7 @@ const Login: React.FC = () => {
         setAuthenticatedUser(response.user);
         
         setSuccess('Account created successfully!');
-        setTimeout(() => navigate('/dashboard'), 1000);
+        setTimeout(() => navigate('/product-selection'), 1000);
       } else {
         setError(response.message);
       }
