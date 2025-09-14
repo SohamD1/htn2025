@@ -16,7 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/rbc-investease';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://yasenbehiri_db_user:SU6rGHPn0nFeLvEo@cluster0.03w3lwa.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 const JWT_SECRET = process.env.JWT_SECRET || 'rbc-investease-secret-key';
 
 let isMongoConnected = false;

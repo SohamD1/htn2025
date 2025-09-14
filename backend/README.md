@@ -26,7 +26,7 @@ Create a `.env` file in the backend directory:
 
 ```bash
 # MongoDB Configuration
-MONGODB_URI=mongodb://localhost:27017/rbc-investease
+MONGODB_URI=mongodb+srv://yasenbehiri_db_user:SU6rGHPn0nFeLvEo@cluster0.03w3lwa.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 
 # JWT Secret (change in production!)
 JWT_SECRET=rbc-investease-super-secret-jwt-key-change-in-production
