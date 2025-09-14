@@ -189,60 +189,107 @@ app.post('/api/auth/login', async (req, res) => {
 
     // Validate input
     if (!email || !password) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Email and password are required' 
+      return res.status(400).json({
+        success: false,
+        message: 'Email and password are required'
       });
     }
 
-    // Find user by email
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Invalid email or password' 
+    if (isMongoConnected) {
+      // Use MongoDB
+      // Find user by email
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid email or password'
+        });
+      }
+
+      // Check password
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid email or password'
+        });
+      }
+
+      // Generate JWT token
+      const token = jwt.sign(
+        {
+          user_id: user.user_id,
+          client_id: user.client_id,
+          email: user.email
+        },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      res.json({
+        success: true,
+        message: 'Login successful',
+        user: {
+          user_id: user.user_id,
+          client_id: user.client_id,
+          user_name: user.user_name,
+          email: user.email,
+          money: user.money,
+          txs: user.txs
+        },
+        token
+      });
+    } else {
+      // Use in-memory storage as fallback
+      // Find user by email
+      const user = inMemoryUsers.find(u => u.email === email);
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid email or password'
+        });
+      }
+
+      // Check password
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid email or password'
+        });
+      }
+
+      // Generate JWT token
+      const token = jwt.sign(
+        {
+          user_id: user.user_id,
+          client_id: user.client_id,
+          email: user.email
+        },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      res.json({
+        success: true,
+        message: 'Login successful (in-memory mode)',
+        user: {
+          user_id: user.user_id,
+          client_id: user.client_id,
+          user_name: user.user_name,
+          email: user.email,
+          money: user.money,
+          txs: user.txs
+        },
+        token
       });
     }
-
-    // Check password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Invalid email or password' 
-      });
-    }
-
-    // Generate JWT token
-    const token = jwt.sign(
-      { 
-        user_id: user.user_id,
-        client_id: user.client_id,
-        email: user.email 
-      },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    res.json({
-      success: true,
-      message: 'Login successful',
-      user: {
-        user_id: user.user_id,
-        client_id: user.client_id,
-        user_name: user.user_name,
-        email: user.email,
-        money: user.money,
-        txs: user.txs
-      },
-      token
-    });
 
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Login failed. Please try again.' 
+    res.status(500).json({
+      success: false,
+      message: 'Login failed. Please try again.'
     });
   }
 });

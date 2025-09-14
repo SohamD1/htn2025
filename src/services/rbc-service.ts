@@ -166,10 +166,19 @@ export class PortfolioAPIService {
         return this.token !== null && this.token.trim() !== '';
       }
       
-      // Test if current token works by making a simple API call
+      // Test if current token works by making a direct API call (avoid recursion)
       try {
-        await this.getClients();
-        return true;
+        const url = `${BASE_URL}/clients`;
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: this.getAuthHeaders(),
+        });
+
+        if (response.ok) {
+          return true;
+        } else {
+          throw new Error(`Token validation failed: ${response.status}`);
+        }
       } catch (error) {
         console.log('Current token invalid, refreshing...');
         
