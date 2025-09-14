@@ -1,0 +1,251 @@
+.simulation {
+  min-height: 100vh;
+  background: var(--light-gray);
+}
+
+.simulation-content {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.simulation-header {
+  margin-bottom: 2rem;
+}
+
+.simulation-header h1 {
+  color: var(--rbc-blue);
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: var(--dark-gray);
+  font-size: 1.1rem;
+}
+
+.simulation-controls {
+  margin-bottom: 2rem;
+}
+
+.control-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.control-card h3 {
+  color: var(--rbc-blue);
+  margin-bottom: 1.5rem;
+}
+
+.settings-form {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  color: var(--dark-gray);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.client-display {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.875rem;
+  background: var(--light-gray);
+  border-radius: 8px;
+}
+
+.client-name {
+  font-weight: 600;
+  color: var(--rbc-blue);
+}
+
+.client-email {
+  color: var(--dark-gray);
+}
+
+.form-group select {
+  width: 100%;
+  padding: 0.875rem;
+  border: 2px solid var(--gray);
+  border-radius: 10px;
+  font-size: 1rem;
+  background: white;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: var(--rbc-blue);
+}
+
+.run-simulation-btn {
+  background: var(--rbc-yellow);
+  color: var(--rbc-blue);
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  width: 100%;
+}
+
+.run-simulation-btn:hover:not(:disabled) {
+  background: #FFB800;
+}
+
+.simulation-summary {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.simulation-summary h2 {
+  color: var(--rbc-blue);
+  margin-bottom: 1.5rem;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background: var(--light-gray);
+  border-radius: 10px;
+}
+
+.summary-card .label {
+  color: var(--dark-gray);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.summary-card .value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.summary-card .value.highlight {
+  color: var(--rbc-blue);
+}
+
+.summary-card .value.positive {
+  color: var(--success);
+}
+
+.summary-card .value.negative {
+  color: var(--error);
+}
+
+.simulation-chart {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.simulation-chart h3 {
+  color: var(--rbc-blue);
+  margin-bottom: 1.5rem;
+}
+
+.portfolio-details {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.portfolio-details h3 {
+  color: var(--rbc-blue);
+  margin-bottom: 1.5rem;
+}
+
+.portfolio-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.portfolio-result-card {
+  border: 2px solid var(--gray);
+  border-radius: 10px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.portfolio-result-card:hover {
+  border-color: var(--rbc-blue);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.portfolio-result-card h4 {
+  color: var(--rbc-blue);
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.result-stats .stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.result-stats .stat span:first-child {
+  color: var(--dark-gray);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.result-stats .stat span:last-child {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.result-stats .stat span.highlight {
+  color: var(--rbc-blue);
+}
+
+.result-stats .stat span.positive {
+  color: var(--success);
+}
+
+.result-stats .stat span.negative {
+  color: var(--error);
+}
+
+.no-client-message {
+  background: white;
+  padding: 4rem;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 4rem;
+}
+
+.no-client-message p {
+  color: var(--dark-gray);
+  font-size: 1.1rem;
+}

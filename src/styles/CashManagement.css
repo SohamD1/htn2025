@@ -1,0 +1,256 @@
+.cash-management {
+  min-height: 100vh;
+  background: var(--light-gray);
+}
+
+.cash-content {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.cash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.cash-header h1 {
+  color: var(--rbc-blue);
+  font-size: 2.5rem;
+}
+
+.create-client-btn {
+  background: var(--rbc-yellow);
+  color: var(--rbc-blue);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.cash-main {
+  display: grid;
+  gap: 2rem;
+}
+
+.current-balance-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.current-balance-card h2 {
+  color: var(--rbc-blue);
+  margin-bottom: 1.5rem;
+}
+
+.client-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.client-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.client-email {
+  color: var(--dark-gray);
+  margin-bottom: 1rem;
+}
+
+.balance-display {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--gray);
+}
+
+.balance-label {
+  color: var(--dark-gray);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.balance-amount {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--success);
+}
+
+.deposit-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.deposit-card h3 {
+  color: var(--rbc-blue);
+  margin-bottom: 1.5rem;
+}
+
+.deposit-form {
+  display: flex;
+  gap: 1rem;
+}
+
+.deposit-form input {
+  flex: 1;
+  padding: 0.875rem;
+  border: 2px solid var(--gray);
+  border-radius: 10px;
+  font-size: 1rem;
+}
+
+.deposit-form input:focus {
+  outline: none;
+  border-color: var(--rbc-blue);
+}
+
+.deposit-btn {
+  background: var(--success);
+  color: white;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.clients-list {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.clients-list h3 {
+  color: var(--rbc-blue);
+  margin-bottom: 1.5rem;
+}
+
+.client-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.client-card {
+  border: 2px solid var(--gray);
+  border-radius: 10px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.client-card:hover {
+  border-color: var(--rbc-blue);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.client-card.active {
+  border-color: var(--rbc-blue);
+  background: rgba(0, 61, 165, 0.05);
+}
+
+.client-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+
+.client-card-header h4 {
+  color: var(--rbc-blue);
+  margin-bottom: 0.25rem;
+}
+
+.client-card-header p {
+  color: var(--dark-gray);
+  font-size: 0.9rem;
+}
+
+.client-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.switch-btn {
+  background: var(--rbc-blue);
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.delete-btn {
+  background: var(--error);
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.client-card-body {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid var(--gray);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat span:first-child {
+  color: var(--dark-gray);
+  font-size: 0.85rem;
+}
+
+.stat span:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.no-client-message {
+  background: white;
+  padding: 4rem;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 4rem;
+}
+
+.no-client-message h2 {
+  color: var(--rbc-blue);
+  margin-bottom: 1rem;
+}
+
+.no-client-message p {
+  color: var(--dark-gray);
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.create-first-client-btn {
+  background: var(--rbc-blue);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}

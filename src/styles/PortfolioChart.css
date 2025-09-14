@@ -1,0 +1,29 @@
+.portfolio-chart {
+  padding: 1rem;
+}
+
+.custom-tooltip {
+  background: white;
+  border: 2px solid var(--rbc-blue);
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.custom-tooltip .label {
+  font-weight: 600;
+  color: var(--rbc-blue);
+  margin-bottom: 0.5rem;
+}
+
+.custom-tooltip .value {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.custom-tooltip .percentage {
+  color: var(--dark-gray);
+  font-size: 0.9rem;
+}

@@ -1,0 +1,281 @@
+.portfolio-manager {
+  min-height: 100vh;
+  background: var(--light-gray);
+}
+
+.manager-content {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.manager-header h1 {
+  color: var(--rbc-blue);
+  font-size: 2.5rem;
+}
+
+.create-btn {
+  background: var(--rbc-yellow);
+  color: var(--rbc-blue);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.message {
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.message.success {
+  background: rgba(76, 175, 80, 0.1);
+  color: var(--success);
+  border: 2px solid var(--success);
+}
+
+.message.error {
+  background: rgba(244, 67, 54, 0.1);
+  color: var(--error);
+  border: 2px solid var(--error);
+}
+
+.no-client {
+  background: white;
+  padding: 3rem;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.no-client p {
+  color: var(--dark-gray);
+  font-size: 1.1rem;
+}
+
+.portfolios-list {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.portfolios-list h2 {
+  color: var(--rbc-blue);
+  margin-bottom: 1.5rem;
+}
+
+.portfolio-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.portfolio-item {
+  border: 2px solid var(--gray);
+  border-radius: 10px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.portfolio-item:hover {
+  border-color: var(--rbc-blue);
+  background: var(--light-gray);
+}
+
+.portfolio-item.selected {
+  border-color: var(--rbc-blue);
+  background: rgba(0, 61, 165, 0.05);
+}
+
+.portfolio-info h3 {
+  color: var(--rbc-blue);
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.portfolio-info p {
+  color: var(--dark-gray);
+  margin-bottom: 0.5rem;
+}
+
+.portfolio-actions {
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.portfolio-actions h2 {
+  color: var(--rbc-blue);
+  margin-bottom: 1.5rem;
+}
+
+.action-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.action-card {
+  border: 2px solid var(--gray);
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.action-card h3 {
+  color: var(--rbc-blue);
+  margin-bottom: 1rem;
+}
+
+.action-card p {
+  color: var(--dark-gray);
+  margin-bottom: 1rem;
+}
+
+.action-card input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--gray);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.action-card input:focus {
+  outline: none;
+  border-color: var(--rbc-blue);
+}
+
+.action-card button {
+  width: 100%;
+  background: var(--rbc-blue);
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.action-card button:hover:not(:disabled) {
+  background: var(--rbc-dark-blue);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+.modal-content h2 {
+  color: var(--rbc-blue);
+  margin-bottom: 1.5rem;
+}
+
+.portfolio-type-options {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.type-option {
+  border: 2px solid var(--gray);
+  border-radius: 10px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.type-option:hover {
+  border-color: var(--rbc-blue);
+  background: var(--light-gray);
+}
+
+.type-option.selected {
+  border-color: var(--rbc-blue);
+  background: rgba(0, 61, 165, 0.1);
+}
+
+.type-option h4 {
+  color: var(--rbc-blue);
+  margin-bottom: 0.5rem;
+}
+
+.type-option p {
+  color: var(--dark-gray);
+  font-size: 0.9rem;
+}
+
+.available-cash {
+  color: var(--success);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.cancel-btn, .submit-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+}
+
+.cancel-btn {
+  background: var(--gray);
+  color: var(--text-primary);
+}
+
+.submit-btn {
+  background: var(--rbc-blue);
+  color: white;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: var(--rbc-dark-blue);
+}

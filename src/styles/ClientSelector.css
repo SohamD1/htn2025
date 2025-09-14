@@ -1,0 +1,100 @@
+.client-selector {
+  position: relative;
+}
+
+.client-selector-button {
+  background: white;
+  border: 2px solid var(--rbc-blue);
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.client-selector-button:hover {
+  background: var(--light-gray);
+}
+
+.client-name {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+  color: var(--rbc-blue);
+}
+
+.dropdown-arrow {
+  color: var(--rbc-blue);
+  transition: transform 0.3s ease;
+}
+
+.client-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  min-width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  animation: dropdownOpen 0.3s ease;
+}
+
+@keyframes dropdownOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.client-option {
+  padding: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  border-bottom: 1px solid var(--gray);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.client-option:last-child {
+  border-bottom: none;
+}
+
+.client-option:hover {
+  background: var(--light-gray);
+}
+
+.client-option.selected {
+  background: rgba(0, 61, 165, 0.1);
+}
+
+.client-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.client-option-name {
+  font-weight: 600;
+  color: var(--rbc-blue);
+}
+
+.client-option-email {
+  font-size: 0.85rem;
+  color: var(--dark-gray);
+}
+
+.client-balance {
+  font-weight: 600;
+  color: var(--success);
+}
