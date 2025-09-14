@@ -7,6 +7,7 @@ interface AuthContextType {
   currentClient: Client | null;
   clients: Client[];
   login: (teamName: string, email: string) => Promise<void>;
+  setAuthenticatedUser: (user: any) => void;
   logout: () => void;
   selectClient: (client: Client) => void;
   refreshClients: () => Promise<void>;
@@ -78,6 +79,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setCurrentClient(client);
   };
 
+  const setAuthenticatedUser = (user: any) => {
+    setIsAuthenticated(true);
+    // We could potentially create a mock client here if needed for compatibility
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -85,6 +91,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         currentClient,
         clients,
         login,
+        setAuthenticatedUser,
         logout,
         selectClient,
         refreshClients,

@@ -1,103 +1,216 @@
-# Portfolio Simulation API Service
+# RBC InvestEase - Student Finance Manager
 
-A simple TypeScript service for interacting with the Hack the North 2025 Portfolio Simulation & Market Sandbox API.
+A comprehensive React application for student portfolio management and investment simulation, integrating with the Hack the North 2025 Portfolio Simulation & Market Sandbox API.
+
+## Features
+
+✅ **User Authentication** - Secure login/signup with MongoDB storage  
+✅ **Portfolio Management** - Create and manage investment portfolios  
+✅ **Transaction Tracking** - Buy/sell transactions with complete history  
+✅ **Investment Simulation** - Simulate portfolio performance over time  
+✅ **Modern UI** - Clean, responsive design with RBC branding  
+✅ **Real-time Data** - Integration with RBC API for live portfolio data  
 
 ## Quick Start
 
-1. **Import the service:**
-```typescript
-import { portfolioAPI } from './api-service';
+### 1. Installation
+
+```bash
+npm install
 ```
 
-2. **Register your team:**
-```typescript
-const auth = await portfolioAPI.registerTeam({
-  team_name: "Your Team Name",
-  contact_email: "team@example.com"
-});
-// Token is automatically stored for future requests
+### 2. No Database Setup Required
+
+This application uses **localStorage** for data persistence, so no database setup is needed! All user data and transactions are stored in your browser's local storage.
+
+### 3. Start the Application
+
+```bash
+npm start
 ```
 
-3. **Create a client:**
-```typescript
-const client = await portfolioAPI.createClient({
-  name: "John Doe",
-  email: "john@example.com",
-  cash: 50000
-});
-```
+The app will open at [http://localhost:3000](http://localhost:3000)
 
-4. **Create a portfolio:**
-```typescript
-const portfolio = await portfolioAPI.createPortfolio(client.id, {
-  type: 'balanced',
-  initialAmount: 25000
-});
-```
+## User Registration & Login
 
-5. **Run simulation:**
-```typescript
-const results = await portfolioAPI.simulateClient(client.id, 12);
-```
+### Sign Up Process
+1. Click "Sign Up" on the login page
+2. Fill in your details:
+   - **Full Name** - Your display name
+   - **Email** - Used for login (must be unique)
+   - **Password** - Minimum 6 characters
+   - **Initial Money** - Starting amount (default: $10,000)
+3. Account creates both local user and RBC API client
+4. Automatic login after successful registration
 
-## Available Methods
+### Login Process
+1. Enter your email and password
+2. System authenticates against MongoDB
+3. JWT token stored for session management
+4. Redirects to dashboard
 
-### Authentication
-- `registerTeam(data)` - Register team and get JWT token
+## Data Storage Schema
 
-### Client Management
-- `createClient(data)` - Create new client
-- `getClients()` - Get all team clients
-- `getClient(id)` - Get specific client
-- `updateClient(id, data)` - Update client info
-- `deleteClient(id)` - Delete client
-- `depositToClient(id, amount)` - Add money to client cash
-
-### Portfolio Management
-- `createPortfolio(clientId, data)` - Create new portfolio
-- `getClientPortfolios(clientId)` - Get client's portfolios
-- `getPortfolio(id)` - Get specific portfolio
-- `transferToPortfolio(id, amount)` - Transfer cash to portfolio
-- `withdrawFromPortfolio(id, amount)` - Withdraw from portfolio
-- `getPortfolioAnalysis(id)` - Get returns analysis
-
-### Simulations
-- `simulateClient(clientId, months)` - Simulate all client portfolios
-
-## Portfolio Types
-
-- `aggressive_growth` - High risk, high reward (12-15% annually)
-- `growth` - Medium-high risk (8-12% annually) 
-- `balanced` - Medium risk (6-10% annually)
-- `conservative` - Low-medium risk (4-7% annually)
-- `very_conservative` - Low risk (2-5% annually)
-
-## Error Handling
-
-All methods throw errors that you should catch:
+### localStorage Structure
+All user data is stored in browser localStorage with the following structure:
 
 ```typescript
-try {
-  const client = await portfolioAPI.createClient(data);
-} catch (error) {
-  console.error('Failed to create client:', error.message);
+// localStorage keys:
+'rbc_users' = [          // Array of all registered users
+  {
+    client_id: string,     // RBC API client ID
+    user_id: string,       // Unique user identifier
+    user_name: string,     // Display name
+    email: string,         // Login email (unique)
+    password: string,      // Simple hashed password
+    money: number,         // Available cash balance
+    txs: [                 // Transaction history
+      {
+        type: 'buy' | 'sell',
+        symbol: string,      // Stock symbol
+        amount: number,      // Shares/quantity
+        price: number,       // Price per share
+        timestamp: Date
+      }
+    ],
+    created_at: Date,
+    updated_at: Date
+  }
+]
+
+'rbc_current_user' = {   // Currently logged in user data
+  user_id: string,
+  client_id: string,
+  user_name: string,
+  email: string,
+  money: number,
+  txs: ITransaction[]
 }
 ```
 
-## Complete Example
+## API Integration
 
-See `usage-examples.ts` for detailed examples including a complete workflow.
+### RBC Portfolio API
+- **Team Registration** - Creates team and JWT token
+- **Client Management** - CRUD operations for investment clients
+- **Portfolio Management** - Create and manage investment portfolios
+- **Simulations** - Run portfolio performance simulations
+- **Transactions** - Handle deposits, withdrawals, transfers
 
-## Files
+### Authentication Flow
+1. User registers → Creates localStorage user + RBC client
+2. Login → Validates against localStorage + sets RBC token
+3. All portfolio operations use RBC API with stored tokens
 
-- `api-service.ts` - Main service file with all API methods
-- `usage-examples.ts` - Comprehensive usage examples
-- `README.md` - This documentation
+## File Structure
 
-## API Base URL
+```
+src/
+├── components/          # React components
+├── pages/
+│   ├── Login.tsx       # Login/Signup page
+│   ├── Dashboard.tsx   # Main dashboard
+│   └── ...
+├── services/
+│   ├── auth-service.ts # localStorage authentication
+│   └── rbc-service.ts  # RBC API integration
+├── config/
+│   └── env.ts          # Environment configuration
+└── styles/             # CSS styling
+```
 
+## Available Scripts
+
+```bash
+npm start          # Start development server
+npm run build      # Build for production
+npm test           # Run tests
+npm run eject      # Eject from Create React App
+```
+
+## Portfolio Types
+
+- **Aggressive Growth** - High risk, high reward (12-15% annually)
+- **Growth** - Medium-high risk (8-12% annually) 
+- **Balanced** - Medium risk (6-10% annually)
+- **Conservative** - Low-medium risk (4-7% annually)
+- **Very Conservative** - Low risk (2-5% annually)
+
+## Transaction Management
+
+Users can:
+- **Buy Stocks** - Purchase shares, deducts from cash balance
+- **Sell Stocks** - Sell shares, adds to cash balance
+- **View History** - Complete transaction log with timestamps
+- **Track Performance** - Monitor gains/losses over time
+
+## Security Features
+
+- **Password Hashing** - Simple browser-compatible hash function
+- **Token Management** - Base64 encoded tokens with expiration
+- **Input Validation** - Client-side validation for all inputs
+- **Error Handling** - Comprehensive error messages and logging
+
+## Development Notes
+
+### localStorage Storage
+- All user data stored in browser localStorage
+- No database setup required
+- Data persists across browser sessions
+- Automatic cleanup and management
+
+### State Management
+- React Context for authentication state
+- localStorage for token persistence
+- Real-time updates for user data
+
+### Styling
+- CSS custom properties for theming
+- RBC brand colors and styling
+- Responsive design for all devices
+- Smooth animations and transitions
+
+## Troubleshooting
+
+### localStorage Issues
+```javascript
+// Clear all app data if needed
+localStorage.removeItem('rbc_users');
+localStorage.removeItem('rbc_current_user');
+localStorage.removeItem('auth_token');
+
+// Or clear all localStorage
+localStorage.clear();
+```
+
+### Common Errors
+- **"User already exists"** - Email must be unique across all users
+- **"Insufficient funds"** - Check cash balance for transactions
+- **"Invalid token"** - Clear localStorage and login again
+- **Login issues** - Try refreshing page or clearing localStorage
+
+## API Endpoints
+
+### RBC API Base URL
 ```
 https://2dcq63co40.execute-api.us-east-1.amazonaws.com/dev
 ```
 
-The service handles authentication automatically once you register your team.
+### Key Endpoints Used
+- `POST /teams/register` - Team registration
+- `POST /clients` - Create investment client
+- `GET /clients` - List all clients
+- `POST /clients/{id}/portfolios` - Create portfolio
+- `POST /client/{id}/simulate` - Run simulations
+
+## Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
+
+## License
+
+This project is part of Hack the North 2025 hackathon submission.

@@ -120,6 +120,11 @@ export class PortfolioAPIService {
     }
   }
 
+  // Get current token
+  getToken(): string | null {
+    return this.token;
+  }
+
   // Clear authentication token
   clearToken() {
     this.token = null;
