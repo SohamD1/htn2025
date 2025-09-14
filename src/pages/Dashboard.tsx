@@ -22,6 +22,8 @@ const Dashboard: React.FC = () => {
   const [showQuickCreate, setShowQuickCreate] = useState(false);
   const [quickAccountName, setQuickAccountName] = useState('');
   const [creatingAccount, setCreatingAccount] = useState(false);
+  const [projectedGrowth, setProjectedGrowth] = useState<number>(0.0);
+  const [simulationLoading, setSimulationLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -93,6 +95,9 @@ const Dashboard: React.FC = () => {
       setTotalValue(totalVal);
       setTotalInvested(totalInv);
       console.log('💰 Portfolio totals - Value:', totalVal, 'Invested:', totalInv);
+      
+      // Always run auto-projection to update based on current state
+      setTimeout(() => runAutoProjection(), 500);
 
     } catch (error) {
       console.error('❌ Failed to load portfolios:', error);
@@ -114,11 +119,25 @@ const Dashboard: React.FC = () => {
   };
 
   const getPortfolioDistribution = () => {
-    return portfolios.map(p => ({
+    const availableCash = getAvailableCash();
+    const totalAssets = totalValue + availableCash;
+    
+    const portfolioData = portfolios.map(p => ({
       name: p.type.replace('_', ' ').toUpperCase(),
       value: p.current_value,
-      percentage: totalValue > 0 ? (p.current_value / totalValue * 100).toFixed(1) : '0'
+      percentage: totalAssets > 0 ? (p.current_value / totalAssets * 100).toFixed(1) : '0'
     }));
+    
+    // Add cash as a separate segment if there's available cash
+    if (availableCash > 0) {
+      portfolioData.push({
+        name: 'AVAILABLE CASH',
+        value: availableCash,
+        percentage: totalAssets > 0 ? (availableCash / totalAssets * 100).toFixed(1) : '0'
+      });
+    }
+    
+    return portfolioData;
   };
 
   const handleQuickCreateAccount = async (e: React.FormEvent) => {
@@ -185,6 +204,46 @@ const Dashboard: React.FC = () => {
     } catch (error: any) {
       console.error('Money sync error:', error);
       alert(`Failed to sync money: ${error.message}`);
+    }
+  };
+
+  const runAutoProjection = async () => {
+    if (!currentClient) {
+      setProjectedGrowth(0.0);
+      return;
+    }
+    
+    // Reset to 0 if no portfolios
+    if (portfolios.length === 0 || totalValue === 0) {
+      setProjectedGrowth(0.0);
+      return;
+    }
+    
+    setSimulationLoading(true);
+    try {
+      console.log('🔮 Running automatic 12-month projection...');
+      const response = await rbcAPI.simulateClient(currentClient.id, 12);
+      
+      if (response.results.length > 0) {
+        // Calculate total projected value and growth percentage
+        const totalProjectedValue = response.results.reduce((sum, result) => sum + result.projectedValue, 0);
+        const totalCurrentValue = response.results.reduce((sum, result) => sum + result.initialValue, 0);
+        
+        if (totalCurrentValue > 0) {
+          const growthPercentage = ((totalProjectedValue - totalCurrentValue) / totalCurrentValue) * 100;
+          setProjectedGrowth(growthPercentage);
+          console.log('📈 12-month projection:', growthPercentage.toFixed(2) + '%');
+        } else {
+          setProjectedGrowth(0.0);
+        }
+      } else {
+        setProjectedGrowth(0.0);
+      }
+    } catch (error) {
+      console.warn('⚠️ Auto-projection failed:', error);
+      setProjectedGrowth(0.0);
+    } finally {
+      setSimulationLoading(false);
     }
   };
 
@@ -280,7 +339,7 @@ const Dashboard: React.FC = () => {
         <ForcedAccountCreation onAccountCreated={setAccountCreationComplete} />
       )}
       <div className="dashboard-content">
-        <UserDashboard />
+        <UserDashboard availableCash={getAvailableCash()} />
 
         <div className="dashboard-header">
           <h1>Portfolio Dashboard</h1>
@@ -289,7 +348,7 @@ const Dashboard: React.FC = () => {
 
         <div className="overview-cards">
           <div className="overview-card">
-            <h3>Total Portfolio Value</h3>
+            <h3>Portfolio Value</h3>
             <p className="value">${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             <span className={`change ${Number(getReturnPercentage()) >= 0 ? 'positive' : 'negative'}`}>
               {Number(getReturnPercentage()) >= 0 ? '+' : ''}{getReturnPercentage()}%
@@ -297,26 +356,40 @@ const Dashboard: React.FC = () => {
           </div>
 
           <div className="overview-card">
-            <h3>Total Invested</h3>
+            <h3>Invested</h3>
             <p className="value">${totalInvested.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
 
           <div className="overview-card">
-            <h3>Available Cash</h3>
+            <h3>Cash</h3>
             <p className="value">${getAvailableCash().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
 
           <div className="overview-card">
-            <h3>Total Return</h3>
+            <h3>Return</h3>
             <p className={`value ${totalValue - totalInvested >= 0 ? 'positive' : 'negative'}`}>
               ${(totalValue - totalInvested).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
+
+          <div className="overview-card projection-card">
+            <h3>12M Projection</h3>
+            {simulationLoading ? (
+              <p className="value loading-text">Calculating...</p>
+            ) : (
+              <>
+                <p className={`value ${projectedGrowth >= 0 ? 'positive' : 'negative'}`}>
+                  {projectedGrowth >= 0 ? '+' : ''}{projectedGrowth.toFixed(1)}%
+                </p>
+                <span className="projection-label">Expected Growth</span>
+              </>
+            )}
+          </div>
         </div>
 
-        {portfolios.length > 0 && (
+        {(portfolios.length > 0 || getAvailableCash() > 0) && (
           <div className="portfolio-chart-section">
-            <h2>Portfolio Distribution</h2>
+            <h2>Asset Distribution</h2>
             <PortfolioChart data={getPortfolioDistribution()} />
           </div>
         )}

@@ -5,7 +5,7 @@ import '../styles/ProductSelection.css';
 const ProductSelection: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleInvestEaseClick = () => {
+  const handleStockOverflowClick = () => {
     navigate('/dashboard');
   };
 
@@ -26,8 +26,8 @@ const ProductSelection: React.FC = () => {
       </div>
 
       <div className="product-cards">
-        <div className="product-card" onClick={handleInvestEaseClick}>
-          <h2>RBC InvestEase</h2>
+        <div className="product-card" onClick={handleStockOverflowClick}>
+          <h2>RBC stockoverflow</h2>
           <div className="product-icon">📊</div>
           <p className="product-description">
             Student portfolio management with cash tracking, risk simulation, and portfolio optimization tools.

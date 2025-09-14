@@ -3,7 +3,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePoints } from '../hooks/usePoints';
 import '../styles/UserDashboard.css';
 
-const UserDashboard: React.FC = () => {
+interface UserDashboardProps {
+  availableCash?: number;
+}
+
+const UserDashboard: React.FC<UserDashboardProps> = ({ availableCash }) => {
   const { backendUser, refreshBackendUser } = useAuth();
   const { points } = usePoints();
 
@@ -56,7 +60,7 @@ const UserDashboard: React.FC = () => {
         <div className="dashboard-card balance-card">
           <h3>Account Balance</h3>
           <div className="balance-amount">
-            {formatCurrency(backendUser.money)}
+            {formatCurrency(availableCash !== undefined ? availableCash : backendUser.money)}
           </div>
           <p className="balance-subtitle">Available Cash</p>
         </div>

@@ -16,7 +16,7 @@ const Navigation: React.FC = () => {
     <nav className="navigation">
       <div className="nav-brand" onClick={() => navigate('/product-selection')} style={{ cursor: 'pointer' }} title="Back to Product Selection">
         <div className="rbc-logo-small">RBC</div>
-        <span className="brand-text">InvestEase</span>
+        <span className="brand-text">stockoverflow</span>
       </div>
 
       <div className="nav-links">
