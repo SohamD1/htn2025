@@ -32,6 +32,9 @@ const Navigation: React.FC = () => {
         <NavLink to="/simulation" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
           Simulation
         </NavLink>
+        <NavLink to="/playground" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+          Playground
+        </NavLink>
       </div>
 
       <button className="logout-btn" onClick={handleLogout}>

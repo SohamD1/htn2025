@@ -47,6 +47,7 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
+<<<<<<< HEAD
       const response = await authService.loginUser({
         email: formData.email,
         password: formData.password
@@ -77,6 +78,10 @@ const Login: React.FC = () => {
       } else {
         setError(response.message);
       }
+=======
+      await login(teamName, email);
+      navigate('/product-selection');
+>>>>>>> refs/remotes/origin/main
     } catch (err: any) {
       setError(err.message || 'Login failed. Please try again.');
     } finally {
