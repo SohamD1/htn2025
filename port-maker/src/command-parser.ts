@@ -132,6 +132,28 @@ export class CommandParser {
       };
     }
 
+    // ASK command: "ask how to draw price line"
+    const askMatch = trimmed.match(/^ask\s+(.+)$/);
+    if (askMatch) {
+      return {
+        type: 'ask',
+        params: {
+          query: askMatch[1]
+        }
+      };
+    }
+
+    // Set API key command: "setkey sk-ant-..."
+    const setkeyMatch = trimmed.match(/^setkey\s+(.+)$/);
+    if (setkeyMatch) {
+      return {
+        type: 'setkey',
+        params: {
+          key: setkeyMatch[1]
+        }
+      };
+    }
+
     return null;
   }
 

@@ -1,6 +1,8 @@
 import { ChartManager } from './chart';
 import { CommandParser } from './command-parser';
 import { Homepage, StockPreference } from './homepage';
+import { claudeService } from './claude-service';
+import { analysisService } from './analysis-service';
 
 class StockChartApp {
   private chartManager: ChartManager;
@@ -440,6 +442,14 @@ class StockChartApp {
         this.showHelp();
         break;
 
+      case 'ask':
+        this.handleAskCommand(command.params.query);
+        break;
+
+      case 'setkey':
+        this.handleSetKeyCommand(command.params.key);
+        break;
+
       default:
         this.addTerminalOutput(`Command type "${command.type}" not implemented yet.`, 'error');
     }
@@ -479,6 +489,7 @@ class StockChartApp {
       this.addTerminalOutput('', '');
       this.addTerminalOutput(`🎯 Welcome back! Your preferred stocks: ${stockList}`, 'success');
       this.addTerminalOutput(`📈 Currently viewing: ${this.userPreferences[0].symbol} (${this.userPreferences[0].name})`, 'info');
+      this.addTerminalOutput(`🤖 RBCQuant AI enabled - Try "ask how to..." for smart suggestions`, 'success');
       this.addTerminalOutput(`💡 Type 'stocks' to switch between your preferences`, 'info');
       this.addTerminalOutput('', '');
     }
@@ -510,11 +521,259 @@ class StockChartApp {
     }, 1000);
   }
 
+  private async handleAskCommand(query: string): Promise<void> {
+    this.addTerminalOutput(`🤔 Analyzing: "${query}"...`, 'info');
+
+    const q = query.toLowerCase();
+
+    // Check if query is asking for key levels or analysis
+    const needsAnalysis = q.includes('key') || q.includes('level') ||
+                         q.includes('support') || q.includes('resistance') ||
+                         q.includes('find') || q.includes('identify') ||
+                         q.includes('technical') || q.includes('analysis');
+
+    if (needsAnalysis) {
+      // Perform actual analysis and execute commands
+      await this.performAnalysisAndExecute(query);
+    } else {
+      // Get command suggestions and auto-execute them
+      const suggestions = await claudeService.getCommandSuggestion(query);
+
+      if (suggestions.length === 0) {
+        this.addTerminalOutput('No matching commands found. Try "help" for all commands.', 'error');
+        return;
+      }
+
+      this.addTerminalOutput('💡 Found relevant commands:', 'success');
+
+      // Auto-execute the suggestions
+      this.addTerminalOutput('🚀 Auto-executing commands:', 'info');
+
+      for (const suggestion of suggestions) {
+        const command = suggestion.command;
+        this.addTerminalOutput(`  → ${command} - ${suggestion.reason}`, '');
+
+        // Parse the command - some might need parameters
+        let fullCommand = command;
+
+        // Add example parameters for commands that need them
+        if (command === 'horizontal line' || command === 'hline') {
+          const currentPrice = this.chartManager.currentSymbol === 'AAPL' ? 175 : 100;
+          fullCommand = `${command} ${currentPrice}`;
+        } else if (command === 'support') {
+          const supportPrice = this.chartManager.currentSymbol === 'AAPL' ? 170 : 95;
+          fullCommand = `support ${supportPrice}`;
+        } else if (command === 'resistance') {
+          const resistancePrice = this.chartManager.currentSymbol === 'AAPL' ? 180 : 105;
+          fullCommand = `resistance ${resistancePrice}`;
+        } else if (command === 'ma' || command === 'sma') {
+          fullCommand = `${command} 20`;
+        } else if (command === 'ema') {
+          fullCommand = `ema 21`;
+        } else if (command === 'bb' || command === 'bollinger') {
+          fullCommand = `bb 20`;
+        } else if (command === 'fib' || command === 'fibonacci') {
+          fullCommand = `fib 150 200`;
+        } else if (command === 'symbol') {
+          fullCommand = `symbol NVDA`;
+        } else if (command === 'stock') {
+          fullCommand = `stock 1`;
+        }
+
+        // Parse and execute
+        const parsedCommand = CommandParser.parse(fullCommand);
+        if (parsedCommand) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+
+          // Execute the full command through normal flow for proper feedback
+          this.addTerminalOutput(`user@investiq:~$ ${fullCommand}`, '');
+          this.executeCommand(fullCommand);
+
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
+
+      this.addTerminalOutput('', '');
+      this.addTerminalOutput('✨ Commands executed! Check your chart.', 'success');
+    }
+  }
+
+  private async performAnalysisAndExecute(query: string): Promise<void> {
+    try {
+      // Get current symbol from chart manager
+      const currentSymbol = this.chartManager.currentSymbol || 'AAPL';
+
+      this.addTerminalOutput(`📊 Analyzing ${currentSymbol} price data...`, 'info');
+
+      // Perform technical analysis
+      const keyLevels = await analysisService.findKeyLevels(currentSymbol);
+
+      // Display analysis results
+      this.addTerminalOutput('', '');
+      this.addTerminalOutput(`📈 Analysis Results for ${currentSymbol}:`, 'success');
+      this.addTerminalOutput(`  Current Price: $${keyLevels.currentPrice.toFixed(2)}`, '');
+      this.addTerminalOutput(`  Price Range: $${keyLevels.priceRange.low.toFixed(2)} - $${keyLevels.priceRange.high.toFixed(2)}`, '');
+
+      if (keyLevels.support.length > 0) {
+        this.addTerminalOutput(`  Support Levels: ${keyLevels.support.map(s => '$' + s.toFixed(0)).join(', ')}`, '');
+      }
+
+      if (keyLevels.resistance.length > 0) {
+        this.addTerminalOutput(`  Resistance Levels: ${keyLevels.resistance.map(r => '$' + r.toFixed(0)).join(', ')}`, '');
+      }
+
+      this.addTerminalOutput('', '');
+
+      // Generate and execute commands based on query intent
+      const q = query.toLowerCase();
+      const commands: string[] = [];
+
+      if (q.includes('support') || q.includes('key') || q.includes('level')) {
+        keyLevels.support.slice(0, 2).forEach(level => {
+          commands.push(`support ${level.toFixed(0)}`);
+        });
+      }
+
+      if (q.includes('resistance') || q.includes('key') || q.includes('level')) {
+        keyLevels.resistance.slice(0, 2).forEach(level => {
+          commands.push(`resistance ${level.toFixed(0)}`);
+        });
+      }
+
+      if (q.includes('fib') || q.includes('fibonacci') || q.includes('retracement')) {
+        commands.push(`fib ${keyLevels.priceRange.low.toFixed(0)} ${keyLevels.priceRange.high.toFixed(0)}`);
+      }
+
+      if (q.includes('moving') || q.includes('average') || q.includes('ma')) {
+        commands.push('ma 20');
+        commands.push('ema 50');
+      }
+
+      // If generic "key levels" query or no specific commands yet, add main support/resistance and fib
+      if ((q.includes('key') && q.includes('level')) || commands.length === 0) {
+        // Clear any duplicate commands first
+        commands.length = 0;
+
+        // Add the most important support level
+        if (keyLevels.support.length > 0) {
+          commands.push(`support ${keyLevels.support[0].toFixed(0)}`);
+        }
+
+        // Add the most important resistance level
+        if (keyLevels.resistance.length > 0) {
+          commands.push(`resistance ${keyLevels.resistance[0].toFixed(0)}`);
+        }
+
+        // Add fibonacci retracement
+        commands.push(`fib ${keyLevels.priceRange.low.toFixed(0)} ${keyLevels.priceRange.high.toFixed(0)}`);
+      }
+
+      // Execute the commands
+      if (commands.length > 0) {
+        this.addTerminalOutput('🚀 Auto-executing commands:', 'success');
+
+        for (const cmd of commands) {
+          this.addTerminalOutput(`  → ${cmd}`, 'info');
+
+          // Parse and execute command
+          const parsedCommand = CommandParser.parse(cmd);
+          if (parsedCommand) {
+            // Small delay for visual effect
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Execute the command
+            this.executeCommandSilently(parsedCommand);
+            this.addTerminalOutput(`    ✓ Executed: ${cmd}`, 'success');
+          }
+        }
+
+        this.addTerminalOutput('', '');
+        this.addTerminalOutput('✨ Analysis complete! Chart updated with key levels.', 'success');
+      }
+
+    } catch (error) {
+      console.error('Analysis error:', error);
+      this.addTerminalOutput('❌ Error performing analysis. Using fallback suggestions.', 'error');
+
+      // Fallback to regular suggestions
+      const suggestions = await claudeService.getCommandSuggestion(query);
+      if (suggestions.length > 0) {
+        this.addTerminalOutput('💡 Suggested commands:', 'info');
+        suggestions.forEach(suggestion => {
+          this.addTerminalOutput(`  ${suggestion.command} - ${suggestion.reason}`, '');
+        });
+      }
+    }
+  }
+
+  private executeCommandSilently(command: any): void {
+    // Execute command without terminal output
+    switch (command.type) {
+      case 'horizontal_line':
+        this.chartManager.addHorizontalLine(
+          command.params.price,
+          command.params.color || '#2196F3'
+        );
+        break;
+
+      case 'vertical_line':
+        this.chartManager.addVerticalLine(command.params.time);
+        break;
+
+      case 'support':
+        this.chartManager.addHorizontalLine(
+          command.params.price,
+          '#4CAF50' // Green for support
+        );
+        break;
+
+      case 'resistance':
+        this.chartManager.addHorizontalLine(
+          command.params.price,
+          '#F44336' // Red for resistance
+        );
+        break;
+
+      case 'moving_average':
+        this.chartManager.addMovingAverage(
+          command.params.period,
+          command.params.type,
+          command.params.type === 'ema' ? '#FF6600' : '#FFA500'
+        );
+        break;
+
+      case 'fibonacci':
+        this.chartManager.addFibonacciRetracement(
+          command.params.startPrice,
+          command.params.endPrice
+        );
+        break;
+
+      case 'bollinger_bands':
+        this.chartManager.addBollingerBands(command.params.period);
+        break;
+    }
+  }
+
+  private handleSetKeyCommand(key: string): void {
+    if (!key || key.trim() === '') {
+      this.addTerminalOutput('❌ Invalid API key', 'error');
+      return;
+    }
+
+    claudeService.setApiKey(key.trim());
+    this.addTerminalOutput('✓ RBCQuant API key saved', 'success');
+    this.addTerminalOutput('💡 Now "ask" commands will use RBCQuant AI for better suggestions', 'info');
+  }
+
   private showHelp(): void {
     const helpLines = [
       '',
       'RBC InvestIQ - Available Commands:',
       '─────────────────────────────────────────────────────────',
+      '🤖 RBCQuant AI Assistant:',
+      '• ask <query>             - Get smart command suggestions',
+      '',
       '📊 Stock Management:',
       '• stocks                  - Show your stock preferences',
       '• stock <number>          - Switch to stock by preference number',
@@ -530,16 +789,21 @@ class StockChartApp {
       '• resistance <price>      - Draw red resistance line',
       '• clear                   - Remove all drawn lines',
       '',
+      '📉 Indicators:',
+      '• ma <period>             - Simple moving average',
+      '• ema <period>            - Exponential moving average',
+      '• bb <period>             - Bollinger bands',
+      '• fib <start> <end>       - Fibonacci retracement',
+      '',
       '🛠️ Terminal:',
       '• history                 - Show command history',
       '• help                    - Show this help message',
       '',
       '📝 Examples:',
-      '  stocks                  - View your preferences',
-      '  stock 1                 - Switch to first preferred stock',
-      '  horizontal line 210     - Draw line at $210',
-      '  support 180            - Draw support at $180',
-      '  symbol NVDA            - Switch to NVIDIA',
+      '  ask how to draw price line  - Get command suggestions',
+      '  ask moving average          - Find indicator commands',
+      '  stocks                      - View your preferences',
+      '  symbol NVDA                 - Switch to NVIDIA',
       ''
     ];
 

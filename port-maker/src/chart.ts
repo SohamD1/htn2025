@@ -8,7 +8,7 @@ export class ChartManager {
   private chartApi: TradingView.IChartApi | null = null;
   private shapes: any[] = [];
   private datafeed: Datafeed;
-  private currentSymbol: string = 'AAPL';
+  public currentSymbol: string = 'AAPL';
 
   constructor() {
     this.datafeed = new Datafeed();

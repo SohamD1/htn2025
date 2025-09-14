@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reset InvestIQ</title>
+</head>
+<body>
+    <h1>Resetting InvestIQ...</h1>
+    <script>
+        // Clear all localStorage
+        localStorage.clear();
+        console.log('✅ localStorage cleared');
+
+        // Redirect to main app
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 1000);
+    </script>
+</body>
+</html>
