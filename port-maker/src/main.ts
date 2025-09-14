@@ -303,7 +303,7 @@ class StockChartApp {
     });
     
     // Add back just the welcome messages
-    this.addTerminalOutput('TradingView Stock Chart Terminal v1.0.0', 'info');
+    this.addTerminalOutput('RBC InvestIQ Advanced Investment Intelligence v1.0.0', 'info');
     this.addTerminalOutput('Type \'help\' for available commands');
   }
 

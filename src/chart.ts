@@ -25,7 +25,7 @@ export class ChartManager {
             height: '100%',
             symbol: 'NASDAQ:AAPL',
             interval: 'D',
-            container_id: 'tradingview_chart',
+            container_id: 'investiq_chart',
             timezone: 'Etc/UTC',
             theme: 'dark',
             style: '1',
@@ -97,7 +97,7 @@ export class ChartManager {
 
   private activateHorizontalLineTool(price: number, color: string): void {
     // Try to programmatically activate RBC InvestIQ's horizontal line tool
-    const iframe = document.querySelector('#tradingview_chart iframe') as HTMLIFrameElement;
+    const iframe = document.querySelector('#investiq_chart iframe') as HTMLIFrameElement;
     if (iframe && iframe.contentWindow) {
       try {
         // Send message to RBC InvestIQ iframe to activate horizontal line tool
@@ -116,7 +116,7 @@ export class ChartManager {
   }
 
   private createHorizontalLineOverlay(price: number, color: string): void {
-    const chartContainer = document.getElementById('tradingview_chart');
+    const chartContainer = document.getElementById('investiq_chart');
     if (!chartContainer) return;
 
     // Create an overlay line that appears on top of the chart
@@ -162,7 +162,7 @@ export class ChartManager {
   private calculatePricePosition(price: number): number {
     // This is a simplified calculation
     // In reality, you'd need to know the chart's price range and scale
-    const chartContainer = document.getElementById('tradingview_chart');
+    const chartContainer = document.getElementById('investiq_chart');
     if (!chartContainer) return 100;
     
     const containerHeight = chartContainer.offsetHeight;
@@ -313,7 +313,7 @@ export class ChartManager {
   }
 
   private async createMovingAverageOverlay(period: number, type: 'sma' | 'ema', color: string): Promise<void> {
-    const chartContainer = document.getElementById('tradingview_chart');
+    const chartContainer = document.getElementById('investiq_chart');
     if (!chartContainer) {
       console.error('Chart container not found for MA overlay');
       return;
@@ -414,7 +414,7 @@ export class ChartManager {
     console.log(`Calculated ${validMAValues} valid MA values out of ${maData.length} total`);
 
     const pointArray: string[] = [];
-    const chartContainer = document.getElementById('tradingview_chart');
+    const chartContainer = document.getElementById('investiq_chart');
     if (!chartContainer) {
         console.error('Chart container not found');
         return '';
@@ -529,7 +529,7 @@ export class ChartManager {
   }
 
   private createFibonacciOverlay(startPrice: number, endPrice: number): void {
-    const chartContainer = document.getElementById('tradingview_chart');
+    const chartContainer = document.getElementById('investiq_chart');
     if (!chartContainer) return;
 
     const fibLevels = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
@@ -594,7 +594,7 @@ export class ChartManager {
   }
 
   private async createBollingerBandsOverlay(period: number): Promise<void> {
-    const chartContainer = document.getElementById('tradingview_chart');
+    const chartContainer = document.getElementById('investiq_chart');
     if (!chartContainer) return;
 
     // Create wrapper for all Bollinger Bands
@@ -687,7 +687,7 @@ export class ChartManager {
   }
 
   private createBandLineWithData(bandsData: any[], band: 'upper' | 'lower' | 'middle', color: string, period: number) {
-    const chartContainer = document.getElementById('tradingview_chart');
+    const chartContainer = document.getElementById('investiq_chart');
     const width = chartContainer!.offsetWidth;
     const height = chartContainer!.offsetHeight;
 
@@ -800,7 +800,7 @@ export class ChartManager {
   }
 
   private createBandLine(period: number, band: 'upper' | 'lower' | 'middle', color: string) {
-    const chartContainer = document.getElementById('tradingview_chart');
+    const chartContainer = document.getElementById('investiq_chart');
     const width = chartContainer!.offsetWidth;
     const height = chartContainer!.offsetHeight;
 

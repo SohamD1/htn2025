@@ -23,7 +23,7 @@ def get_history():
         data.reset_index(inplace=True)
         data['time'] = data['Date'].astype('int64') // 10**9
 
-        # TradingView expects 'time', 'open', 'high', 'low', 'close', 'volume'
+        # RBC InvestIQ expects 'time', 'open', 'high', 'low', 'close', 'volume'
         data.rename(columns={
             'Open': 'open',
             'High': 'high',

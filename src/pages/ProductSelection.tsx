@@ -12,7 +12,7 @@ const ProductSelection: React.FC = () => {
   const handleInvestIQClick = () => {
     // Navigate to the advanced trading platform (port-maker)
     // Open in a new tab since it's a separate application
-    window.open('http://localhost:5173', '_blank');
+    window.open('http://localhost:3000', '_blank');
   };
 
   return (
