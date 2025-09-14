@@ -25,6 +25,7 @@ interface AuthContextType {
   clients: Client[];
   backendUser: BackendUser | null;
   needsAccountCreation: boolean;
+  token: string | null;
   login: (teamName: string, email: string) => Promise<void>;
   setAuthenticatedUser: (user: any) => void;
   logout: () => void;
@@ -54,6 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [clients, setClients] = useState<Client[]>([]);
   const [backendUser, setBackendUser] = useState<BackendUser | null>(null);
   const [needsAccountCreation, setNeedsAccountCreation] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -72,6 +74,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
           setIsAuthenticated(true);
           setBackendUser(user);
+          setToken(authToken);
 
           // Check if user needs RBC account creation
           // Skip for users who have been using the app (to avoid disrupting existing workflows)
@@ -259,6 +262,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setClients([]);
     setBackendUser(null);
     setNeedsAccountCreation(false);
+    setToken(null);
   };
 
   const selectClient = (client: Client) => {
@@ -301,6 +305,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log('🔄 Setting authenticated user:', user.user_name);
     setIsAuthenticated(true);
     setBackendUser(user);
+    
+    // Set token from localStorage
+    const authToken = localStorage.getItem('auth_token');
+    if (authToken) {
+      setToken(authToken);
+    }
 
     // Check if user needs RBC account creation
     // Skip for users who have been using the app (to avoid disrupting existing workflows)
@@ -356,6 +366,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         clients,
         backendUser,
         needsAccountCreation,
+        token,
         login,
         setAuthenticatedUser,
         logout,

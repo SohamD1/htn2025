@@ -39,6 +39,19 @@ python app.py &
 TRADING_API_PID=$!
 cd ../..
 
+# Start InvestIQ Backend
+echo "📈 Starting RBC InvestIQ Backend..."
+cd port-maker/backend
+if [ ! -d "venv" ]; then
+    echo "Setting up Python virtual environment for InvestIQ..."
+    python3 -m venv venv
+fi
+source venv/bin/activate
+pip install -r requirements.txt > /dev/null 2>&1
+python app.py &
+INVESTIQ_BACKEND_PID=$!
+cd ../..
+
 # Start InvestIQ Frontend
 echo "🎯 Starting RBC InvestIQ Frontend..."
 cd port-maker
@@ -54,6 +67,7 @@ echo "   • RBC InvestEase (Main App): http://localhost:3000"
 echo "   • Node.js Backend: http://localhost:3001"
 echo "   • RBC InvestIQ (Advanced): http://localhost:5173"
 echo "   • Trading API Backend: http://localhost:5001"
+echo "   • InvestIQ Backend: http://localhost:5002"
 echo ""
 echo "📝 How to use:"
 echo "   1. Open http://localhost:3000 in your browser"

@@ -852,6 +852,195 @@ app.get('/api/rbc/simulations', authenticateToken, async (req, res) => {
   }
 });
 
+// Simple token counting function (approximate)
+function estimateTokens(text) {
+  // Rough estimation: 1 token ≈ 4 characters for English text
+  return Math.ceil(text.length / 4);
+}
+
+// Chatbot endpoint
+app.post('/api/chatbot/chat', authenticateToken, async (req, res) => {
+  try {
+    const { message } = req.body;
+
+    if (!message || typeof message !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Message is required'
+      });
+    }
+
+    // Get user data from MongoDB
+    let userData = null;
+    let portfolioData = null;
+
+    if (isMongoConnected) {
+      // Fetch user data
+      const user = await User.findOne({ user_id: req.user.user_id });
+      if (user) {
+        userData = {
+          user_name: user.user_name,
+          money: user.money,
+          transactions: user.txs,
+          account_age_days: Math.floor((Date.now() - new Date(user.created_at)) / (1000 * 60 * 60 * 24))
+        };
+      }
+
+      // Fetch portfolio data
+      const portfolios = await RBCPortfolio.find({ user_id: req.user.user_id });
+      if (portfolios.length > 0) {
+        portfolioData = {
+          total_portfolios: portfolios.length,
+          total_invested: portfolios.reduce((sum, p) => sum + (p.invested_amount || 0), 0),
+          total_current_value: portfolios.reduce((sum, p) => sum + (p.current_value || 0), 0),
+          portfolio_types: portfolios.map(p => p.type),
+          recent_transactions: portfolios.flatMap(p => p.transactions || []).slice(-5)
+        };
+      }
+    }
+
+    // Estimate tokens for routing decision
+    const estimatedTokens = estimateTokens(message);
+    const useHighModel = estimatedTokens > 50; // Use high model for complex queries
+
+    // Create system prompt for student financial advice
+    const systemPrompt = `You are Leo, a friendly and knowledgeable financial advisor specifically designed to help students with their investments and financial decisions. You represent InvestEase, a platform that helps students learn about investing.
+
+Your personality:
+- Friendly and approachable, like a wise mentor
+- Patient and educational
+- Focused on long-term financial success
+- Encouraging but realistic about risks
+- Use simple, clear language that students can understand
+
+Your expertise:
+- Student-focused investment strategies
+- Risk management appropriate for young investors
+- Diversification principles
+- Long-term wealth building
+- Educational content about financial markets
+- Budget management for students
+
+Guidelines:
+- Always prioritize education over quick profits
+- Emphasize the importance of starting early with investing
+- Warn about risks appropriately
+- Suggest diversified, low-cost investment options
+- Keep responses concise but informative
+- Use real examples when helpful
+- Never give specific stock picks without proper risk warnings
+
+Current user context:
+${userData ? `
+- User: ${userData.user_name}
+- Available cash: $${userData.money.toLocaleString()}
+- Number of transactions: ${userData.transactions.length}
+- Account age: ${userData.account_age_days} days
+` : ''}
+${portfolioData ? `
+- Total portfolios: ${portfolioData.total_portfolios}
+- Total invested: $${portfolioData.total_invested.toLocaleString()}
+- Current portfolio value: $${portfolioData.total_current_value.toLocaleString()}
+- Portfolio types: ${portfolioData.portfolio_types.join(', ')}
+` : ''}
+
+Remember: You're here to educate and guide students toward smart, long-term financial decisions.`;
+
+    let botResponse = '';
+    let modelUsed = useHighModel ? 'high' : 'middle';
+
+    try {
+      // Make request to Martian API
+      const martianResponse = await fetch('https://api.withmartian.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer sk-38778e2ab3504c388f0a5c53b1c4485e',
+        },
+        body: JSON.stringify({
+          model: useHighModel ? 'anthropic/claude-sonnet-4-20250514' : 'anthropic/claude-sonnet-4-20250514:cheap',
+          max_tokens: 800,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: message }
+          ],
+          temperature: 0.7,
+        }),
+      });
+
+      if (!martianResponse.ok) {
+        const errorData = await martianResponse.text();
+        console.error(`Martian API error: ${martianResponse.status} - ${errorData}`);
+        
+        // Try fallback to cheaper model if high model failed
+        if (useHighModel) {
+          console.log('Trying fallback to cheaper model...');
+          const fallbackResponse = await fetch('https://api.withmartian.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer sk-38778e2ab3504c388f0a5c53b1c4485e',
+            },
+            body: JSON.stringify({
+              model: 'anthropic/claude-sonnet-4-20250514:cheap',
+              max_tokens: 800,
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: message }
+              ],
+              temperature: 0.7,
+            }),
+          });
+
+          if (fallbackResponse.ok) {
+            const fallbackData = await fallbackResponse.json();
+            botResponse = fallbackData.content[0]?.text || '';
+            modelUsed = 'middle';
+          }
+        }
+        
+        if (!botResponse) {
+          throw new Error(`Martian API error: ${martianResponse.status} - ${errorData}`);
+        }
+      } else {
+        const martianData = await martianResponse.json();
+        botResponse = martianData.content[0]?.text || '';
+      }
+    } catch (apiError) {
+      console.error('Martian API completely failed, using fallback response:', apiError);
+      
+      // Fallback responses based on common financial questions
+      const lowerMessage = message.toLowerCase();
+      if (lowerMessage.includes('invest') || lowerMessage.includes('investment')) {
+        botResponse = `Hi! I'm Leo, your financial advisor. For students starting to invest, I recommend:\n\n1. **Start with index funds** - They're diversified and low-cost\n2. **Dollar-cost averaging** - Invest a fixed amount regularly\n3. **Emergency fund first** - Save 3-6 months of expenses\n4. **Long-term thinking** - Time is your biggest advantage!\n\nWould you like me to explain any of these concepts in more detail?`;
+      } else if (lowerMessage.includes('budget') || lowerMessage.includes('money')) {
+        botResponse = `Great question about budgeting! As a student, here's a simple approach:\n\n**50/30/20 Rule:**\n- 50% Needs (tuition, rent, food)\n- 30% Wants (entertainment, dining out)\n- 20% Savings & investments\n\n**Student tips:**\n- Track expenses for a week\n- Use student discounts\n- Consider part-time work\n- Start investing even small amounts\n\nWhat specific budgeting challenge are you facing?`;
+      } else if (lowerMessage.includes('risk') || lowerMessage.includes('diversif')) {
+        botResponse = `Excellent question about risk management! Here's what students should know:\n\n**Diversification basics:**\n- Don't put all money in one stock\n- Mix different asset types (stocks, bonds)\n- Consider international exposure\n- Index funds provide instant diversification\n\n**Risk for students:**\n- You have time advantage (can recover from losses)\n- Start with moderate risk tolerance\n- Never invest money you need soon\n\nWhat's your current investment timeline?`;
+      } else {
+        botResponse = `Hi! I'm Leo, your financial advisor at InvestEase. I'm here to help students like you with investing, budgeting, and financial planning.\n\n**I can help you with:**\n• Investment strategies for students\n• Budgeting and money management\n• Understanding risk and diversification\n• Long-term financial planning\n• Specific questions about your portfolio\n\nWhat would you like to learn about today?`;
+      }
+      
+      modelUsed = 'fallback';
+    }
+
+    res.json({
+      success: true,
+      response: botResponse,
+      model_used: modelUsed,
+      estimated_tokens: estimatedTokens
+    });
+
+  } catch (error) {
+    console.error('Chatbot error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get chatbot response. Please try again.',
+      error: error.message
+    });
+  }
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ 

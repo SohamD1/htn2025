@@ -8,9 +8,20 @@ import CashManagement from './pages/CashManagement';
 import Simulation from './pages/Simulation';
 import Playground from './pages/Playground';
 import FinancialGoals from './pages/FinancialGoals';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
+import Chatbot from './components/Chatbot';
 import './styles/App.css';
+
+// Component to conditionally render chatbot
+const ChatbotWrapper: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+  
+  // Only show chatbot when user is authenticated and not on login page
+  if (!isAuthenticated) return null;
+  
+  return <Chatbot />;
+};
 
 function App() {
   return (
@@ -77,6 +88,9 @@ function App() {
             />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>
+          
+          {/* Chatbot - only shows when authenticated */}
+          <ChatbotWrapper />
         </div>
       </Router>
     </AuthProvider>
