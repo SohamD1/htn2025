@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { SimulationResult } from '../services/rbc-service';
 import rbcAPI from '../services/rbc-service';
+import simulationHistoryService from '../services/simulation-history-service';
 import Navigation from '../components/Navigation';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import '../styles/Simulation.css';
@@ -39,6 +40,17 @@ const Simulation: React.FC = () => {
       const response = await rbcAPI.simulateClient(currentClient.id, parseInt(months));
       console.log('Simulation response:', response);
       setSimulationResults(response.results);
+      
+      // Save simulation results to history
+      if (response.results.length > 0) {
+        simulationHistoryService.saveSimulation(
+          currentClient.id,
+          currentClient.name,
+          parseInt(months),
+          response.results
+        );
+        console.log('Simulation results saved to history');
+      }
     } catch (err: any) {
       console.error('Simulation error:', err);
       setError(err.message || 'Simulation failed');

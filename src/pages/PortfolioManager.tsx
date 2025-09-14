@@ -3,10 +3,12 @@ import { useAuth } from '../contexts/AuthContext';
 import { Portfolio, PortfolioCreate } from '../services/rbc-service';
 import rbcAPI from '../services/rbc-service';
 import Navigation from '../components/Navigation';
+import { useNavigate } from 'react-router-dom';
 import '../styles/PortfolioManager.css';
 
 const PortfolioManager: React.FC = () => {
   const { currentClient, refreshClients } = useAuth();
+  const navigate = useNavigate();
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedPortfolio, setSelectedPortfolio] = useState<Portfolio | null>(null);
@@ -122,13 +124,22 @@ const PortfolioManager: React.FC = () => {
       <div className="manager-content">
         <div className="manager-header">
           <h1>Portfolio Management</h1>
-          <button
-            className="create-btn"
-            onClick={() => setShowCreateModal(true)}
-            disabled={!currentClient}
-          >
-            + Create New Portfolio
-          </button>
+          <div className="header-actions">
+            <button
+              className="history-btn"
+              onClick={() => navigate('/simulation-history')}
+              disabled={!currentClient}
+            >
+              📊 View Simulation History
+            </button>
+            <button
+              className="create-btn"
+              onClick={() => setShowCreateModal(true)}
+              disabled={!currentClient}
+            >
+              + Create New Portfolio
+            </button>
+          </div>
         </div>
 
         {message && (

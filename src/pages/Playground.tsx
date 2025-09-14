@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Navigation from '../components/Navigation';
 import martianAPI from '../services/martian-service';
+import { usePoints } from '../hooks/usePoints';
+import { useAuth } from '../contexts/AuthContext';
 import '../styles/Playground.css';
 
 interface SketchfabViewerProps {
@@ -17,7 +19,6 @@ interface DailyQuestion {
 }
 
 interface UserProgress {
-  totalPoints: number;
   streak: number;
   lastAnsweredDate: string;
   answeredToday: boolean;
@@ -97,8 +98,9 @@ const SketchfabViewer: React.FC<SketchfabViewerProps> = ({ level }) => {
 };
 
 const Playground: React.FC = () => {
+  const { points, addPoints, subtractPoints, hasEnoughPoints } = usePoints();
+  const { currentClient } = useAuth();
   const [progress, setProgress] = useState<UserProgress>({
-    totalPoints: 0,
     streak: 0,
     lastAnsweredDate: '',
     answeredToday: false
@@ -107,8 +109,8 @@ const Playground: React.FC = () => {
   const [dailyQuestion, setDailyQuestion] = useState<DailyQuestion | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const upgradeCosts = {
     2: 25,
@@ -119,18 +121,46 @@ const Playground: React.FC = () => {
 
   // Load progress from localStorage
   useEffect(() => {
-    const savedProgress = localStorage.getItem('crib-quest-progress');
+    if (!currentClient) return;
+    
+    // Load saved progress for current client
+    const savedProgress = localStorage.getItem(getProgressKey());
     if (savedProgress) {
-      const parsed = JSON.parse(savedProgress);
-      setProgress(parsed);
-      setHouseLevel(Math.min(5, Math.floor(parsed.totalPoints / 25) + 1));
+      const parsedProgress = JSON.parse(savedProgress);
+      setProgress(parsedProgress);
+      
+      // Check if it's a new day
+      const today = new Date().toDateString();
+      if (parsedProgress.lastAnsweredDate !== today) {
+        const updatedProgress = { ...parsedProgress, answeredToday: false };
+        setProgress(updatedProgress);
+        saveProgress(updatedProgress);
+      }
+    } else {
+      // Reset progress for new client
+      const newProgress = {
+        streak: 0,
+        lastAnsweredDate: '',
+        answeredToday: false
+      };
+      setProgress(newProgress);
     }
+    
     generateDailyQuestion();
-  }, []);
+  }, [currentClient]);
 
-  // Save progress to localStorage
+  // Get client-specific storage keys
+  const getProgressKey = () => {
+    return currentClient ? `crib-quest-progress-${currentClient.id}` : 'crib-quest-progress-default';
+  };
+
+  const getDailyQuestionKey = (date: string) => {
+    return currentClient ? `daily-question-${currentClient.id}-${date}` : `daily-question-default-${date}`;
+  };
+
+  // Save progress to localStorage (client-specific)
   const saveProgress = (newProgress: UserProgress) => {
-    localStorage.setItem('crib-quest-progress', JSON.stringify(newProgress));
+    localStorage.setItem(getProgressKey(), JSON.stringify(newProgress));
     setProgress(newProgress);
   };
 
@@ -138,7 +168,7 @@ const Playground: React.FC = () => {
     setIsLoading(true);
     try {
       const today = new Date().toDateString();
-      const savedQuestion = localStorage.getItem(`daily-question-${today}`);
+      const savedQuestion = localStorage.getItem(getDailyQuestionKey(today));
       
       if (savedQuestion) {
         setDailyQuestion(JSON.parse(savedQuestion));
@@ -186,9 +216,9 @@ const Playground: React.FC = () => {
         };
       }
 
-      questionData.id = today;
+      questionData.id = `daily-${today}`;
+      localStorage.setItem(getDailyQuestionKey(today), JSON.stringify(questionData));
       setDailyQuestion(questionData);
-      localStorage.setItem(`daily-question-${today}`, JSON.stringify(questionData));
     } catch (error) {
       console.error('Error generating daily question:', error);
       // Fallback question
@@ -219,20 +249,19 @@ const Playground: React.FC = () => {
 
     if (isCorrect && !progress.answeredToday) {
       const today = new Date().toDateString();
-      const newPoints = progress.totalPoints + 5;
+      addPoints(5);
       const newStreak = progress.lastAnsweredDate === new Date(Date.now() - 86400000).toDateString() 
         ? progress.streak + 1 
         : 1;
       
       const newProgress = {
-        totalPoints: newPoints,
         streak: newStreak,
         lastAnsweredDate: today,
         answeredToday: true
       };
       
       saveProgress(newProgress);
-      setHouseLevel(Math.min(5, Math.floor(newPoints / 25) + 1));
+      setHouseLevel(Math.min(5, Math.floor((points + 5) / 25) + 1));
     }
   };
 
@@ -240,17 +269,13 @@ const Playground: React.FC = () => {
     const nextLevel = (houseLevel + 1) as keyof typeof upgradeCosts;
     const cost = upgradeCosts[nextLevel];
 
-    if (cost && progress.totalPoints >= cost) {
-      const newProgress = {
-        ...progress,
-        totalPoints: progress.totalPoints - cost
-      };
-      saveProgress(newProgress);
+    if (cost && hasEnoughPoints(cost)) {
+      subtractPoints(cost);
       setHouseLevel(nextLevel);
     }
   };
 
-  const canUpgrade = houseLevel < 5 && progress.totalPoints >= (upgradeCosts[(houseLevel + 1) as keyof typeof upgradeCosts] || 0);
+  const canUpgrade = houseLevel < 5 && hasEnoughPoints(upgradeCosts[(houseLevel + 1) as keyof typeof upgradeCosts] || 0);
 
   const getLevelDescription = () => {
     switch(houseLevel) {
@@ -283,7 +308,7 @@ const Playground: React.FC = () => {
         <div className="stats-section">
           <div className="stat-card">
             <div>
-              <div className="stat-value">{progress.totalPoints}</div>
+              <div className="stat-value">{points}</div>
               <div className="stat-label">Total Points</div>
             </div>
           </div>
@@ -403,7 +428,7 @@ const Playground: React.FC = () => {
                 </button>
                 {!canUpgrade && houseLevel < 5 && (
                   <p className="insufficient-points">
-                    Need {(upgradeCosts[(houseLevel + 1) as keyof typeof upgradeCosts] || 0) - progress.totalPoints} more points!
+                    Need {(upgradeCosts[(houseLevel + 1) as keyof typeof upgradeCosts] || 0) - points} more points!
                   </p>
                 )}
               </>

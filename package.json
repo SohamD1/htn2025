@@ -13,6 +13,8 @@
     "@types/react": "^18.2.33",
     "@types/react-dom": "^18.2.14",
     "@types/uuid": "^10.0.0",
+    "flash": "^1.1.0",
+    "flask": "^0.2.10",
     "node-fetch": "^2.7.0",
     "nodemon": "^3.1.10",
     "react": "^18.2.0",

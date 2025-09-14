@@ -1,9 +1,11 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { usePoints } from '../hooks/usePoints';
 import '../styles/UserDashboard.css';
 
 const UserDashboard: React.FC = () => {
   const { backendUser, refreshBackendUser } = useAuth();
+  const { points } = usePoints();
 
   if (!backendUser) {
     return (
@@ -57,6 +59,14 @@ const UserDashboard: React.FC = () => {
             {formatCurrency(backendUser.money)}
           </div>
           <p className="balance-subtitle">Available Cash</p>
+        </div>
+
+        <div className="dashboard-card points-card">
+          <h3>Crib Quest Points</h3>
+          <div className="points-amount">
+            {points}
+          </div>
+          <p className="points-subtitle">Total Points Earned</p>
         </div>
 
         <div className="dashboard-card transactions-card">

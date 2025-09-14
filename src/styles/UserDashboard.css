@@ -77,6 +77,29 @@
   margin: 0;
 }
 
+.points-card {
+  background: linear-gradient(135deg, #FFD200 0%, #ffdd33 100%);
+  color: #003DA5;
+}
+
+.points-card h3 {
+  color: #003DA5;
+}
+
+.points-amount {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 10px 0;
+  color: #003DA5;
+}
+
+.points-subtitle {
+  font-size: 14px;
+  opacity: 0.8;
+  margin: 0;
+  color: #003DA5;
+}
+
 .transaction-stats {
   display: flex;
   flex-direction: column;

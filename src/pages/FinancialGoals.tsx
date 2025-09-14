@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { usePoints } from '../hooks/usePoints';
 import '../styles/FinancialGoals.css';
 
 interface StockGoal {
@@ -21,8 +22,8 @@ interface StockGoal {
 const FinancialGoals: React.FC = () => {
   const navigate = useNavigate();
   const { currentClient } = useAuth();
+  const { points, addPoints } = usePoints();
   const [goals, setGoals] = useState<StockGoal[]>([]);
-  const [coins, setCoins] = useState(0);
   const [showAddGoal, setShowAddGoal] = useState(false);
   const [newGoal, setNewGoal] = useState({
     title: '',
@@ -45,7 +46,6 @@ const FinancialGoals: React.FC = () => {
     if (!currentClient) return; // Wait for client to be loaded
     
     const savedGoals = localStorage.getItem(getUserKey('stock_goals'));
-    const savedCoins = localStorage.getItem(getUserKey('user_coins'));
 
     if (savedGoals) {
       setGoals(JSON.parse(savedGoals));
@@ -94,10 +94,6 @@ const FinancialGoals: React.FC = () => {
       setGoals(defaultGoals);
       localStorage.setItem(getUserKey('stock_goals'), JSON.stringify(defaultGoals));
     }
-
-    if (savedCoins) {
-      setCoins(parseInt(savedCoins));
-    }
   }, [currentClient, getUserKey]);
 
   const addGoal = () => {
@@ -132,13 +128,9 @@ const FinancialGoals: React.FC = () => {
         const wasCompleted = goal.completed;
         const isNowCompleted = newAmount >= goal.targetAmount;
         
-        // Award coins if goal was just completed
+        // Award points if goal was just completed
         if (!wasCompleted && isNowCompleted) {
-          setCoins(prev => {
-            const newCoins = prev + goal.coinsReward;
-            localStorage.setItem(getUserKey('user_coins'), newCoins.toString());
-            return newCoins;
-          });
+          addPoints(goal.coinsReward);
         }
 
         return {
@@ -202,7 +194,7 @@ const FinancialGoals: React.FC = () => {
 
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-number">{coins}</div>
+            <div className="stat-number">{points}</div>
             <div className="stat-label">Total Points</div>
           </div>
           <div className="stat-card">
@@ -210,7 +202,7 @@ const FinancialGoals: React.FC = () => {
             <div className="stat-label">Goals Completed</div>
           </div>
           <div className="stat-card">
-            <div className="stat-number">Level {Math.floor(coins / 100) + 1}</div>
+            <div className="stat-number">Level {Math.floor(points / 100) + 1}</div>
             <div className="stat-label">Current Level</div>
           </div>
         </div>
