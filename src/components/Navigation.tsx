@@ -33,7 +33,7 @@ const Navigation: React.FC = () => {
           Simulation
         </NavLink>
         <NavLink to="/playground" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-          Playground
+          The Crib Quest
         </NavLink>
       </div>
 
